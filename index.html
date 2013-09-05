@@ -14,8 +14,8 @@
 	<script>
 		window.addEventListener('load', function(){
 			Fantasy.Init('canvas');
-			Fantasy.Load('level/skyline.json', function() {
-				Fantasy.StartLoop();
+			Fantasy.Load('level/skyline.json', function(root) {
+				Fantasy.StartLoop(root);
 			});
 		});
 	</script>

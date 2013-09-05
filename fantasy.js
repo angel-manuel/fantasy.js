@@ -109,11 +109,10 @@ var Fantasy = (function () {
     //canvas - Canvas HTML5 element
     //context - canvas.getContext('2d')
 
-    var level, content;
     var enviroment;
     var root;
-    var camera;
     var displays;
+    var content;
 
     //getXMLHttpRequestObject()
     //Metodo multiplataforma para obtener un xhr
@@ -647,164 +646,169 @@ var Fantasy = (function () {
             this.transform.fix();
         }
     });
+    Node.FromLevel = function (level, callback) {
+        var root;
 
-    function find_explicit_deps_in_tree(tree) {
-        var deps = [];
+        function find_explicit_deps_in_tree(tree) {
+            var deps = [];
 
-        var node_names = Object.keys(tree);
+            var node_names = Object.keys(tree);
 
-        node_names.forEach(function (node_name) {
-            var node = tree[node_name];
-            if(node.components) {
-                node.components.forEach(function (component) {
-                    deps.push(component.type);
-                })
+            node_names.forEach(function (node_name) {
+                var node = tree[node_name];
+                if(node.components) {
+                    node.components.forEach(function (component) {
+                        deps.push(component.type);
+                    })
+                }
+                if(node.subnodes) {
+                    deps = deps.concat(find_explicit_deps_in_tree(node.subnodes));
+                }
+            });
+
+            return deps;
+        }
+
+        function find_explicit_deps() {
+            var deps = [];
+            if(level.content) {
+                if(level.content.download) {
+                    var dlc_names = Object.keys(level.content.download);
+                    dlc_names.forEach(function (dlc_name) {
+                        var dlc = level.content.download[dlc_name];
+                        deps.push(dlc.type);
+                    });
+                }
+                if(level.content.abstraction) {
+                    var abs_names = Object.keys(level.content.abstraction);
+                    abs_names.forEach(function (abs_name) {
+                        if(level.content.abstraction.hasOwnProperty(abs_name)) {
+                            deps.push(level.content.abstraction[abs_name].type);
+                        }
+                    });
+                }
             }
-            if(node.subnodes) {
-                deps = deps.concat(find_explicit_deps_in_tree(node.subnodes));
+            if(level.tree) {
+                deps = deps.concat(find_explicit_deps_in_tree(level.tree));
             }
-        });
 
-        return deps;
-    }
+            return deps;
+        }
 
-    function find_explicit_deps() {
-        var deps = [];
-        if(level.content) {
-            if(level.content.download) {
+        //load_step_1(callback)
+        //Se encarga de cargar las dependencias explicitas e implicitas
+
+        function load_step_1(callback) {
+            var deps = [];
+
+            if(level.depends) {
+                deps = deps.concat(level.depends);
+            }
+            deps = deps.concat(find_explicit_deps());
+
+            if(deps.length > 0) {
+                var trigger = shot_on_n(deps.length, load_step_2.bind(this, callback));
+                deps.forEach(function (dep) {
+                    moduleManager.use(dep, trigger);
+                });
+            } else {
+                load_step_2(callback);
+            }
+        }
+
+        //load_dlc(dlc, callback)
+        //Carga y devuelve un contenido descargarble y llama a callback
+
+        function load_dlc(dlc, callback) {
+            console.log('Loading ' + dlc.type + ' from ' + dlc.src);
+            var constructor = moduleManager.get(dlc.type);
+            return new constructor(dlc.src, callback);
+        }
+
+        //load_step_2(callback)
+        //Carga el contenido descargable
+
+        function load_step_2(callback) {
+            if (level.content && level.content.download) {
                 var dlc_names = Object.keys(level.content.download);
+                var trigger = shot_on_n(dlc_names.length, load_step_3.bind(this, callback));
                 dlc_names.forEach(function (dlc_name) {
-                    var dlc = level.content.download[dlc_name];
-                    deps.push(dlc.type);
-                });
-            }
-            if(level.content.abstraction) {
-                var abs_names = Object.keys(level.content.abstraction);
-                abs_names.forEach(function (abs_name) {
-                    if(level.content.abstraction.hasOwnProperty(abs_name)) {
-                        deps.push(level.content.abstraction[abs_name].type);
-                    }
-                });
+                    var dlc = this[dlc_name];
+                    enviroment.content[dlc_name] = load_dlc(dlc, trigger);
+                }, level.content.download);
+            } else {
+                load_step_3(callback);
             }
         }
-        if(level.tree) {
-            deps = deps.concat(find_explicit_deps_in_tree(level.tree));
+
+        //load_abstraction(abstraction)
+        //Carga y devuelve una abstración
+
+        function load_abstraction(abstraction) {
+            console.log('Abstracting into ' + abstraction.type);
+            var constructor = moduleManager.get(abstraction.type);
+            return new constructor(abstraction.args);
         }
 
-        return deps;
-    }
+        //load_step_3(callback)
+        //Carga las diversas abstraciones del contenido descargable
 
-    //load_step_1(callback)
-    //Se encarga de cargar las dependencias explicitas e implicitas
-
-    function load_step_1(callback) {
-        var deps = [];
-
-        if(level.depends) {
-            deps = deps.concat(level.depends);
+        function load_step_3(callback) {
+            if (level.content && level.content.abstraction) {
+                var abstraction_names = Object.keys(level.content.abstraction);
+                abstraction_names.forEach(function (abstraction_name) {
+                    var abstraction = this[abstraction_name];
+                    enviroment.content[abstraction_name] = load_abstraction(abstraction);
+                }, level.content.abstraction);
+            }
+            load_step_4(callback);
         }
-        deps = deps.concat(find_explicit_deps());
 
-        if(deps.length > 0) {
-            var trigger = shot_on_n(deps.length, load_step_2.bind(this, callback));
-            deps.forEach(function (dep) {
-                moduleManager.use(dep, trigger);
-            });
-        } else {
-            load_step_2(callback);
+        //load_component(component)
+        //Carga un componente
+
+        function load_component(component) {
+            console.log('Loading component of type ' + component.type);
+            var constructor = moduleManager.get(component.type);
+            return new constructor(component.args);
         }
-    }
 
-    //load_dlc(dlc, callback)
-    //Carga y devuelve un contenido descargarble y llama a callback
+        //load_node(node_name, node)
+        //Carga un node, sus componentes y subnodos
 
-    function load_dlc(dlc, callback) {
-        console.log('Loading ' + dlc.type + ' from ' + dlc.src);
-        var constructor = moduleManager.get(dlc.type);
-        return new constructor(dlc.src, callback);
-    }
-
-    //load_step_2(callback)
-    //Carga el contenido descargable
-
-    function load_step_2(callback) {
-        if (level.content && level.content.download) {
-            var dlc_names = Object.keys(level.content.download);
-            var trigger = shot_on_n(dlc_names.length, load_step_3.bind(this, callback));
-            dlc_names.forEach(function (dlc_name) {
-                var dlc = this[dlc_name];
-                content[dlc_name] = load_dlc(dlc, trigger);
-            }, level.content.download);
-        } else {
-            load_step_3(callback);
+        function load_node(node_name, node) {
+            var subnodes = {}
+            var components = [];
+            
+            if (node.components) {
+                node.components.forEach(function (component) {
+                    components.push(load_component(component));
+                });
+            }
+            if (node.subnodes) {
+                var subnode_names = Object.keys(node.subnodes);
+                subnode_names.forEach(function (subnode_name) {
+                    subnodes[subnode_name] = load_node(subnode_name, node.subnodes[subnode_name]);
+                });
+            }
+            var realnode = new Node(node_name, node.enabled, components, node.layer, new Transform(node.x, node.y, node.z, node.rotation, node.scale_x || node.scale, node.scale_y || node.scale, node.scale_z || node.scale), subnodes);
+            return realnode;
         }
-    }
 
-    //load_abstraction(abstraction)
-    //Carga y devuelve una abstración
+        //load_step_4(callback)
+        //Carga el arbol de la escena y llama a callback
 
-    function load_abstraction(abstraction) {
-        console.log('Abstracting into ' + abstraction.type);
-        var constructor = moduleManager.get(abstraction.type);
-        return new constructor(abstraction.args);
-    }
-
-    //load_step_3(callback)
-    //Carga las diversas abstraciones del contenido descargable
-
-    function load_step_3(callback) {
-        if (level.content && level.content.abstraction) {
-            var abstraction_names = Object.keys(level.content.abstraction);
-            abstraction_names.forEach(function (abstraction_name) {
-                var abstraction = this[abstraction_name];
-                content[abstraction_name] = load_abstraction(abstraction);
-            }, level.content.abstraction);
+        function load_step_4(callback) {
+            var root_desc = {
+                subnodes: level.tree
+            };
+            root = load_node('root', root_desc);
+            callback(root);
         }
-        load_step_4(callback);
-    }
 
-    //load_component(component)
-    //Carga un componente
-
-    function load_component(component) {
-        console.log('Loading component of type ' + component.type);
-        var constructor = moduleManager.get(component.type);
-        return new constructor(component.args);
-    }
-
-    //load_node(node_name, node)
-    //Carga un node, sus componentes y subnodos
-
-    function load_node(node_name, node) {
-        var subnodes = {}
-        var components = [];
-        
-        if (node.components) {
-            node.components.forEach(function (component) {
-                components.push(load_component(component));
-            });
-        }
-        if (node.subnodes) {
-            var subnode_names = Object.keys(node.subnodes);
-            subnode_names.forEach(function (subnode_name) {
-                subnodes[subnode_name] = load_node(subnode_name, node.subnodes[subnode_name]);
-            });
-        }
-        var realnode = new Node(node_name, node.enabled, components, node.layer, new Transform(node.x, node.y, node.z, node.rotation, node.scale_x || node.scale, node.scale_y || node.scale, node.scale_z || node.scale), subnodes);
-        return realnode;
-    }
-
-    //load_step_4(callback)
-    //Carga el arbol de la escena y llama a callback
-
-    function load_step_4(callback) {
-        var root_desc = {
-            subnodes: level.tree
-        };
-        root = load_node('root', root_desc);
-        enviroment.root = root;
-        callback();
-    }
+        load_step_1(callback);
+        return root;
+    };
 
     //resize_canvas()
     //Ajusta el tamaño del canvas al de la pantalla
@@ -892,7 +896,7 @@ var Fantasy = (function () {
     //Loop principal del juego, actualiza y dibuja el arbol
 
     function tick(dt) {
-        root.update(dt);
+        enviroment.root.update(dt);
         context.save();
 
         context.fillStyle = "#000000";
@@ -926,21 +930,13 @@ var Fantasy = (function () {
             }
 
             context = canvas.getContext('2d');
-
-            camera = {
-                x: -canvas.width,
-                y: -canvas.height,
-                width: canvas.width,
-                height: canvas.height,
-                depth: -1,
-                layer_mask: 65535,
-                background: "#ffffff"
-            }
+            content = {};
 
             enviroment = {
                 canvasname: cnvname,
                 canvas: canvas,
                 context: context,
+                content: content,
                 get_xhr: getXMLHttpRequestObject,
                 moduleManager: moduleManager,
                 addDisplay: add_display
@@ -952,17 +948,16 @@ var Fantasy = (function () {
             var xhr = getXMLHttpRequestObject();
             xhr.open('GET', levelfile, false);
             xhr.send(null);
-            level = JSON.parse(xhr.responseText);
+            var level = JSON.parse(xhr.responseText);
 
             displays = [];
-            content = {};
             enviroment.content = content;
             enviroment.level = level;
-
-            load_step_1(callback);
+            Node.FromLevel(level, callback);
         },
-        StartLoop: function () {
-            root.load();
+        StartLoop: function (root) {
+            enviroment.root = root;
+            enviroment.root.load();
 
             loaded = true;
 
