@@ -127,5 +127,11 @@
     "perspective_camera": {
         "depends": ["aabb"],
         "src": "code/perspective_camera.js"
+    },
+    "prefab": {
+        "src": "code/prefab.js"
+    },
+    "prefab_binder": {
+        "src": "code/prefab_binder.js"
     }
 }

@@ -646,7 +646,7 @@ var Fantasy = (function () {
             this.transform.fix();
         }
     });
-    Node.FromLevel = function (level, callback) {
+    Node.FromLevel = function (name, level, callback) {
         var root;
 
         function find_explicit_deps_in_tree(tree) {
@@ -733,8 +733,12 @@ var Fantasy = (function () {
                 var dlc_names = Object.keys(level.content.download);
                 var trigger = shot_on_n(dlc_names.length, load_step_3.bind(this, callback));
                 dlc_names.forEach(function (dlc_name) {
-                    var dlc = this[dlc_name];
-                    enviroment.content[dlc_name] = load_dlc(dlc, trigger);
+                    if(!enviroment.content.hasOwnProperty(dlc_name)) {
+                        var dlc = this[dlc_name];
+                        enviroment.content[dlc_name] = load_dlc(dlc, trigger);
+                    } else {
+                        trigger();
+                    }
                 }, level.content.download);
             } else {
                 load_step_3(callback);
@@ -757,8 +761,10 @@ var Fantasy = (function () {
             if (level.content && level.content.abstraction) {
                 var abstraction_names = Object.keys(level.content.abstraction);
                 abstraction_names.forEach(function (abstraction_name) {
-                    var abstraction = this[abstraction_name];
-                    enviroment.content[abstraction_name] = load_abstraction(abstraction);
+                    if(!enviroment.content.hasOwnProperty(abstraction_name)) {
+                        var abstraction = this[abstraction_name];
+                        enviroment.content[abstraction_name] = load_abstraction(abstraction);
+                    }
                 }, level.content.abstraction);
             }
             load_step_4(callback);
@@ -802,13 +808,14 @@ var Fantasy = (function () {
             var root_desc = {
                 subnodes: level.tree
             };
-            root = load_node('root', root_desc);
+            root = load_node(name, root_desc);
             callback(root);
         }
 
         load_step_1(callback);
         return root;
     };
+    moduleManager.set('node', Node);
 
     //resize_canvas()
     //Ajusta el tamaño del canvas al de la pantalla
@@ -953,7 +960,7 @@ var Fantasy = (function () {
             displays = [];
             enviroment.content = content;
             enviroment.level = level;
-            Node.FromLevel(level, callback);
+            Node.FromLevel('root', level, callback);
         },
         StartLoop: function (root) {
             enviroment.root = root;
