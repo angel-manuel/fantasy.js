@@ -1,0 +1,4 @@
+- Image drawer + collider(box_collider) + rigidbody_2d
+- Viewport depth
+- requestAnimationFrame
+- NPCs

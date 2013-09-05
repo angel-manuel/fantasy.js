@@ -1,0 +1,67 @@
+{
+	"content": {
+		"download": {
+			"skyline": {"type": "image", "src": "content/skyline.png"},
+			"skyline_2": {"type": "image", "src": "content/skyline_2.png"},
+			"skyline_3": {"type": "image", "src": "content/skyline_3.png"}
+		}
+	},
+	"tree": {
+		"camera": {
+			"z": -1,
+			"components": [
+				{
+					"type": "perspective_camera",
+					"args": {
+						"layer_mask": 65535,
+						"background": "CornflowerBlue"
+					}
+				},
+				{
+					"type": "script",
+					"args": {
+						"update": "this.gameobject.translate(event*20, -event*10);"
+					}
+				}
+			]
+		},
+		"skyline_1": {
+			"z": 2,
+			"x": 20,
+			"components": [
+				{
+					"type": "drawer",
+					"args": {
+						"image": "skyline_2",
+						"align": "center"
+					}
+				}
+			]
+		},
+		"skyline_2": {
+			"x": 75,
+			"components": [
+				{
+					"type": "drawer",
+					"args": {
+						"image": "skyline_2",
+						"align": "center"					
+					}
+				}
+			]
+		},
+		"skyline_3": {
+			"z": 1,
+			"x": -250,
+			"components": [
+				{
+					"type": "drawer",
+					"args": {
+						"image": "skyline_2",
+						"align": "center"
+					}
+				}
+			]
+		}
+	}
+}

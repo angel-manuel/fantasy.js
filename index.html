@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>fantasy.js</title>
+</head>
+
+<body>
+	<canvas id="canvas">Parece que su navegador no soporta canvas</canvas>
+	<script src="oop.js"></script>
+	<script src="fantasy.js"></script>
+	<script>
+		window.addEventListener('load', function(){
+			Fantasy.Init('canvas');
+			Fantasy.Load('level/skyline.json', function() {
+				Fantasy.StartLoop();
+			});
+		});
+	</script>
+</body>
+
+</html>
