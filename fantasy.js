@@ -413,17 +413,18 @@ var Fantasy = (function () {
         init: function (node_name, enabled, components, layer, transform, subnodes) {
             this.enabled = enabled || (typeof enabled === 'undefined');
             this.node_name = node_name;
-            this.transform = transform || new Transform();
+            this.local_transform = transform || new Transform();
+            this.up_transform = new Transform();
+            this.transform = this.local_transform;
             this.layer = layer || 0;
             this.components = [];
             this.services = {};
             this.listeners = {};
+            this.subnodes = {};
 
             components.forEach(function (component) {
                 this.addComponent(component);
             }, this);
-
-            this.subnodes = {};
             
             var subnode_names = Object.keys(subnodes);
             subnode_names.forEach(function (subnode_name) {
@@ -506,7 +507,7 @@ var Fantasy = (function () {
         //subnode - Instancia de Node
         //Añade un subnodo
         appendChild: function (subnode) {
-            subnode.transform = Transform.Combine(this.transform, subnode.transform);
+            subnode.setUpTransform(this.transform);
             subnode.parent = this;
             this.subnodes[subnode.node_name] = subnode;
         },
@@ -561,23 +562,36 @@ var Fantasy = (function () {
                 return undefined;
             }
         },
-        translate: function (x, y, z) {
-            this.transform.x += x;
-            this.transform.y += y;
-            this.transform.z += z || 0;
-            
-            var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function (subnode_name) {
-                this.subnodes[subnode_name].translate(x, y, z);
-            }, this);
-        },
-        rotate: function (angle) {
-            this.transform.rotation += angle;
+        setUpTransform: function(transform) {
+            this.up_transform = transform;
+            this.transform = Transform.Combine(this.up_transform, this.local_transform);
 
             var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function (subnode_name) {
-                this.subnodes[subnode_name].rotate(angle);
+            subnode_names.forEach(function(subnode_name) {
+                var subnode = this.subnodes[subnode_name];
+                subnode.setUpTransform(this.transform);
             }, this);
+        },
+        rebuildTransform: function () {
+            this.transform = Transform.Combine(this.up_transform, this.local_transform);
+
+            var subnode_names = Object.keys(this.subnodes);
+            subnode_names.forEach(function(subnode_name) {
+                var subnode = this.subnodes[subnode_name];
+                subnode.setUpTransform(this.transform);
+            }, this);
+        },
+        translate: function (x, y, z) {
+            this.local_transform.x += x;
+            this.local_transform.y += y;
+            this.local_transform.z += z || 0;
+
+            this.rebuildTransform();
+        },
+        rotate: function (angle) {
+            this.local_transform.rotation += angle;
+
+            this.rebuildTransform();
         },
         moveTo: function (x, y, z) {
             var rx = x - this.transform.x,
@@ -688,8 +702,15 @@ var Fantasy = (function () {
                     });
                 }
             }
-            if(level.tree) {
-                deps = deps.concat(find_explicit_deps_in_tree(level.tree));
+
+            if(level.components) {
+                level.components.forEach(function (component) {
+                    deps.push(component.type);
+                })
+            }
+            
+            if(level.subnodes) {
+                deps = deps.concat(find_explicit_deps_in_tree(level.subnodes));
             }
 
             return deps;
@@ -805,10 +826,7 @@ var Fantasy = (function () {
         //Carga el arbol de la escena y llama a callback
 
         function load_step_4(callback) {
-            var root_desc = {
-                subnodes: level.tree
-            };
-            root = load_node(name, root_desc);
+            root = load_node(name, level);
             callback(root);
         }
 

@@ -9,8 +9,8 @@ var prefab = Content.extend({
 		this.xhr.open('GET', src, true);
 
 		this.xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                var resp = xhr.responseText;
+            if (this.xhr.readyState === 4) {
+                var resp = this.xhr.responseText;
                 this.level = JSON.parse(resp);
                 this.load();
             }

@@ -1,0 +1,31 @@
+{
+    "content": {
+        "download": {
+            "box": {"type": "image", "src": "content/box.png"}
+        }
+    },
+    "components": [
+        {
+            "type": "drawer",
+            "args": {
+                "image": "box",
+                "align": "center"
+            }
+        },
+        {
+            "type": "rigidbody_2d",
+            "args": {
+                "mass": 1,
+                "angular_inertia": 45.25,
+                "angular_velocity": 8
+            }
+        },
+        {
+            "type": "box_collider",
+            "args": {
+                "width": 64,
+                "height": 64
+            }
+        }
+    ]
+}

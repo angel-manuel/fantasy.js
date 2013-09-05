@@ -96,12 +96,6 @@ var rigidbody_2d = Component.extend({
         ];
     },
     setState: function (state) {
-        /*
-        this.gameobject.transform.x = state[0];
-        this.gameobject.transform.y = state[1];
-        this.gameobject.transform.rotation = state[2];
-        */
-
         this.gameobject.moveTo(state[0], state[1]);
         this.gameobject.setRotation(state[2]);
 
