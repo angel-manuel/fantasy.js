@@ -5,6 +5,7 @@ var prefab_binder = Component.extend({
 	init: function (args) {
 		this.prefab = enviroment.content[args.prefab];
 		this.prefab_name = args.name || args.prefab;
+		this.mode = args.mode || 'inline';
 		this._super(args);
 	},
 	prepare: function (gameobject) {
@@ -18,8 +19,22 @@ var prefab_binder = Component.extend({
 		}
 
 		this.prefab.getTree(name, function (tree) {
-			gameobject.appendChild(tree);
-		});
+			switch(this.mode) {
+				case 'inline':
+					tree.components.forEach(function (component) {
+						gameobject.addComponent(component);
+					});
+
+					var subnode_names = Object.keys(tree.subnodes);
+					subnode_names.forEach(function (subnode_name) {
+						gameobject.appendChild(tree.subnode[subnode_name]);
+					})
+					break;
+				case 'subnode':
+					gameobject.appendChild(tree);
+					break;
+			}
+		}.bind(this));
 
 		this._super(gameobject);
 	}

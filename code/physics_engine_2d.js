@@ -1,12 +1,12 @@
 //physics_engine_2d
 var Component = enviroment.moduleManager.get('component');
+var vector2 = enviroment.moduleManager.get('vector2');
+var solver = enviroment.moduleManager.get('solver');
 
 var physics_engine_2d = Component.extend({
     init: function ( args) {
         this.enviroment = enviroment;
-        this.vector2 = this.enviroment.moduleManager.get('vector2');
-        this.solver = this.enviroment.moduleManager.get('solver');
-        this.gravity = new this.vector2(args.gx, args.gy);
+        this.gravity = new vector2(args.gx, args.gy);
         this.bodies = [];
 
         this._super(args);
@@ -43,7 +43,7 @@ var physics_engine_2d = Component.extend({
         this.bodies.forEach(function (body) {
             if(!body.isFixed()) {
                 var body_state = body.getState(), body_problem = body.getProblem();
-                body.setState(this.solver.solve(body_state, body_problem, dt));
+                body.setState(solver.solve(body_state, body_problem, dt));
             }
         }, this);
     }

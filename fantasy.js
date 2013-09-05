@@ -653,6 +653,9 @@ var Fantasy = (function () {
 
             this.components.forEach(function (component) {
                 if (component.update) {
+                    if(!component.loaded)
+                        component.load();
+
                     component.update(dt);
                 }
             });
