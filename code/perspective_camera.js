@@ -13,7 +13,8 @@ var perspective_camera = Component.extend({
             x: viewport.x || 0,
             y: viewport.y || 0,
             width: viewport.width || '100%',
-            height: viewport.height || '100%'
+            height: viewport.height || '100%',
+            depth: viewport.depth || 0
         };
 
         this.hiddencanvas = document.createElement('canvas');
@@ -29,7 +30,7 @@ var perspective_camera = Component.extend({
         this.pixel_height = height;
     },
     prepare: function (gameobject) {
-        this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this);
+        this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
         this._super(gameobject);
     },
     getFrameBuffer: function () {
@@ -81,6 +82,7 @@ var perspective_camera = Component.extend({
             y: pos.y*(this.pixel_height/this.hiddencanvas.height) - this.pixel_height/2 + + this.gameobject.transform.y
         };
         enviroment.root.shot('click', at, true);
+        return true;
     }
 });
 

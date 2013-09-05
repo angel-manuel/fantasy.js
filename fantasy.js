@@ -327,6 +327,9 @@ var Fantasy = (function () {
         var s = Math.sin(A.rotation),
             c = Math.cos(A.rotation);
 
+        c = 1;
+        s = 0;
+
         var x = B.x*c - B.y*s,
             y = B.x*s + B.y*c;
 
@@ -859,11 +862,12 @@ var Fantasy = (function () {
     }
 
     var Display = Class.extend({
-        init: function (x, y, width, height, handler) {
+        init: function (x, y, width, height, depth, handler) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
+            this.depth = depth;
             this.handler = handler;
             this.update_size();
         },
@@ -899,12 +903,22 @@ var Fantasy = (function () {
                 x: event.clientX - this.pixel_x,
                 y: event.clientY - this.pixel_y
             };
-            this.handler.onclick(at);
+            return this.handler.onclick(at);
         }
     });
 
-    function add_display(x, y, width, height, handler) {
-        return displays.push(new Display(x, y, width, height, handler));
+    function add_display(x, y, width, height, depth, handler) {
+        var disp = displays.push(new Display(x, y, width, height, depth, handler));
+        displays.sort(function depth_order(a, b) {
+            if(a.depth < b.depth) {
+                return 1;
+            } else if(a.depth > b.depth) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+        return disp;
     }
 
     //onclick(event)
@@ -913,11 +927,14 @@ var Fantasy = (function () {
     function onclick(event) {
         var x = event.clientX,
             y = event.clientY;
-        displays.forEach(function (display) {
+
+        for(var i=displays.length - 1; i--;) {
+            var display = displays[i];
             if(display.pixel_x < x && x < (display.pixel_x + display.pixel_width) && display.pixel_y < y && y < (display.pixel_y + display.pixel_height)) {
-                display.onclick(event);
+                if(display.onclick(event))
+                    break;
             }
-        });
+        }
     }
 
     //tick(dt)

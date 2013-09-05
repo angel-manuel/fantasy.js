@@ -16,8 +16,7 @@
             "type": "rigidbody_2d",
             "args": {
                 "mass": 1,
-                "angular_inertia": 45.25,
-                "angular_velocity": 8
+                "angular_inertia": 45.25
             }
         },
         {
