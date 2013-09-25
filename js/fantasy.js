@@ -1,105 +1,10 @@
-//isfalse(val)
-//Devuelve verdadero si val es undefined o false
-
-function isfalse(val) {
-    return (val === null) || (val === undefined) || (val === false);
-}
-
-function xor(a, b) {
-    return (a) ? !b : b;
-}
-
-Array.prototype.max = function () {
-    return this.reduce(function(previousValue, currentValue, index, array){
-        if(isfalse(currentValue)) { return previousValue; }
-        return (previousValue < currentValue) ? currentValue : previousValue;
-    }, Number.NEGATIVE_INFINITY);
-};
-
-Array.prototype.min = function () {
-    return this.reduce(function(previousValue, currentValue, index, array){
-        if(isfalse(currentValue)) { return previousValue; }
-        return (previousValue < currentValue) ? previousValue : currentValue;
-    }, Number.POSITIVE_INFINITY);
-};
-
-Array.prototype.find_max = function () {
-    var maxval = Number.NEGATIVE_INFINITY, maxpos; 
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(this[i] && maxval < this[i]) {
-            maxpos = i;
-            maxval = this[i];
-        }
-    }
-    return maxpos;
-};
-
-Array.prototype.find_min = function () {
-    var minval = Number.POSITIVE_INFINITY, minpos; 
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(this[i] && this[i] < minval) {
-            minpos = i;
-            minval = this[i];
-        }
-    }
-    return minpos;
-};
-
-Array.prototype.find = function (callback) {
-    var ret = Array();
-    callback = callback || function (val) { return val; };
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(callback(this[i])) {
-            ret.push(i);
-        }
-    }
-    return ret;
-};
-
-if(!Object.prototype.clone) {
-    Object.prototype.clone = function clone() {
-        var target = {};
-            for (var i in this) {
-                if (this.hasOwnProperty(i)) {
-                    target[i] = this[i];
-                } else if(this.__proto__.hasOwnProperty(i)) {
-                    target.__proto__[i] = this.__proto__[i];
-                }
-            }
-        return target;
-    }
-}
-
-function callback_split(callback1, callback2) {
-    return function () {
-        callback1();
-        callback2();
-    }
-}
-
-function clamp(val, min, max) {
-    return Math.max(min, Math.min(max, val));
-}
-
-//shot_on_n(n, callback)
-//Devuelve una función que al ser llamada n veces o más llama a callback
-
-function shot_on_n(n, callback) {
-    var left = n;
-    if (left <= 0) {
-        setTimeout(callback, 0);
-        return callback;
-    }
-    return function () {
-        --left;
-        if (left === 0) {
-            callback();
-        }
-    }
-}
-
-var Fantasy = (function () {
+(function (){
     "use strict";
+    
+    var global_object = window || this;
+
+    var fantasy;
+    global_object.fantasy = fantasy = {};
 
     var debug = true;
 
@@ -113,6 +18,8 @@ var Fantasy = (function () {
     var root;
     var displays;
     var content;
+
+    var tick_interval = false;
 
     //getXMLHttpRequestObject()
     //Metodo multiplataforma para obtener un xhr
@@ -178,7 +85,7 @@ var Fantasy = (function () {
             var module = catalog[modulename];
             code_evaluator(module.src, function (result) {
                 modules[modulename] = result;
-                subscriptions[modulename].forEach(function (subscription) {
+                _.each(subscriptions[modulename], function (subscription) {
                     subscription(result);
                 });
             }, modulename);
@@ -218,8 +125,8 @@ var Fantasy = (function () {
                 var module = catalog[modulename];
                 if (module.depends) {
                     var deps = module.depends;
-                    var trigger = shot_on_n(deps.length, postload.bind(this, modulename, callback));
-                    deps.forEach(function (dep) {
+                    var trigger = _.after(deps.length, postload.bind(this, modulename, callback));
+                    _.each(deps, function (dep) {
                         this.use(dep, trigger);
                     }, this);
                 } else {
@@ -391,6 +298,9 @@ var Fantasy = (function () {
         load: function () {
             this.loaded = true;
         },
+        unload: function () {
+            this.loaded = false;
+        },
         draw: function () {},
         update: function (dt) {},
         //prepare()
@@ -425,12 +335,12 @@ var Fantasy = (function () {
             this.listeners = {};
             this.subnodes = {};
 
-            components.forEach(function (component) {
+            _.each(components, function (component) {
                 this.addComponent(component);
             }, this);
             
             var subnode_names = Object.keys(subnodes);
-            subnode_names.forEach(function (subnode_name) {
+            _.each(subnode_names, function (subnode_name) {
                 this.appendChild(subnodes[subnode_name]);;
             }, this);
         },
@@ -448,17 +358,16 @@ var Fantasy = (function () {
         //y propagando el evento a los subnodos si propagate es verdadero
         shot: function (eventname, args, propagate) {
             if(this.listeners.hasOwnProperty(eventname)) {
-                this.listeners[eventname].forEach(function (callback) {
+                _.each(this.listeners[eventname], function (callback) {
                     callback(args);
                 });
             }
 
             if(propagate) {
-                for (var subnode_name in this.subnodes) {
-                    if (this.subnodes.hasOwnProperty(subnode_name)) {
-                        this.subnodes[subnode_name].shot(eventname, args, propagate);
+                _.each(this.subnodes, function (subnode) {
+                        subnode.shot(eventname, args, propagate);
                     }
-                }
+                );
             }
         },
         //get(path)
@@ -529,17 +438,15 @@ var Fantasy = (function () {
         //Destruye este nodo y sus subnodos
         destroy: function () {
             if(!this.parent || !this.parent.deleteChild(this.node_name)) {
-                this.components.forEach(function (component) {
+                _.each(this.components, function (component) {
                     if(component.load) {
                         component.destroy();
                     }
                 });
 
-                for (var subnode_name in this.subnodes) {
-                    if (this.subnodes.hasOwnProperty(subnode_name)) {
-                        this.deleteChild(subnode_name);
-                    }
-                }
+                _.each(this.subnodes, function (subnode, subnode_name) {
+                    this.deleteChild(subnode_name);
+                });
 
                 this.parent = undefined;
                 this.subnodes = undefined;
@@ -569,18 +476,14 @@ var Fantasy = (function () {
             this.up_transform = transform;
             this.transform = Transform.Combine(this.up_transform, this.local_transform);
 
-            var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function(subnode_name) {
-                var subnode = this.subnodes[subnode_name];
+            _.each(this.subnodes, function (subnode) {
                 subnode.setUpTransform(this.transform);
             }, this);
         },
         rebuildTransform: function () {
             this.transform = Transform.Combine(this.up_transform, this.local_transform);
 
-            var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function(subnode_name) {
-                var subnode = this.subnodes[subnode_name];
+            _.each(this.subnodes, function (subnode) {
                 subnode.setUpTransform(this.transform);
             }, this);
         },
@@ -609,14 +512,23 @@ var Fantasy = (function () {
             this.rotate(rangle);
         },
         load: function () {
-            for (var subnode_name in this.subnodes) {
-                if (this.subnodes.hasOwnProperty(subnode_name)) {
-                    this.subnodes[subnode_name].load();
+            _.each(this.subnodes, function (subnode){
+                    subnode.load();
                 }
-            }
+            );
 
-            this.components.forEach(function (component) {
+            _.each(this.components, function (component) {
                 component.load();
+            });
+        },
+        unload: function () {
+            _.each(this.subnodes, function (subnode) {
+                    subnode.unload();
+                }
+            );
+
+            _.each(this.components, function (component) {
+                component.unload();
             });
         },
         draw: function (layer_mask) {
@@ -626,7 +538,7 @@ var Fantasy = (function () {
             var draw_list = [];
 
             if((layer_mask>>this.layer) % 2) {
-                this.components.forEach(function (component) {
+                _.each(this.components, function (component) {
                     if (component.draw) {
                         draw_list.push({
                             gameobject: this.node_name,
@@ -638,9 +550,8 @@ var Fantasy = (function () {
                 }, this);
             }
 
-            var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function (subnode_name) {
-                draw_list = draw_list.concat(this.subnodes[subnode_name].draw(layer_mask));
+            _.each(this.subnodes, function (subnode) {
+                draw_list = draw_list.concat(subnode.draw(layer_mask));
             }, this);
 
             return draw_list;
@@ -649,12 +560,11 @@ var Fantasy = (function () {
             if(!this.enabled)
                 return;
 
-            var subnode_names = Object.keys(this.subnodes);
-            subnode_names.forEach(function (subnode_name) {
-                this.subnodes[subnode_name].update(dt);
+            _.each(this.subnodes, function (subnode) {
+                subnode.update(dt);
             }, this);
 
-            this.components.forEach(function (component) {
+            _.each(this.components, function (component) {
                 if (component.update) {
                     if(!component.loaded)
                         component.load();
@@ -674,12 +584,11 @@ var Fantasy = (function () {
 
             var node_names = Object.keys(tree);
 
-            node_names.forEach(function (node_name) {
-                var node = tree[node_name];
+            _.each(tree, function(node) {
                 if(node.components) {
-                    node.components.forEach(function (component) {
+                    _.each(node.components, function (component) {
                         deps.push(component.type);
-                    })
+                    });
                 }
                 if(node.subnodes) {
                     deps = deps.concat(find_explicit_deps_in_tree(node.subnodes));
@@ -693,26 +602,21 @@ var Fantasy = (function () {
             var deps = [];
             if(level.content) {
                 if(level.content.download) {
-                    var dlc_names = Object.keys(level.content.download);
-                    dlc_names.forEach(function (dlc_name) {
-                        var dlc = level.content.download[dlc_name];
+                    _.each(level.content.download, function (dlc) {
                         deps.push(dlc.type);
                     });
                 }
                 if(level.content.abstraction) {
-                    var abs_names = Object.keys(level.content.abstraction);
-                    abs_names.forEach(function (abs_name) {
-                        if(level.content.abstraction.hasOwnProperty(abs_name)) {
-                            deps.push(level.content.abstraction[abs_name].type);
-                        }
+                    _.each(level.content.abstraction, function (abstraction) {
+                        deps.push(abstraction.type);
                     });
                 }
             }
 
             if(level.components) {
-                level.components.forEach(function (component) {
+                _.each(level.components, function (component) {
                     deps.push(component.type);
-                })
+                });
             }
             
             var sub = level.tree || level.subnodes;
@@ -720,7 +624,7 @@ var Fantasy = (function () {
                 deps = deps.concat(find_explicit_deps_in_tree(sub));
             }
 
-            return deps;
+            return _.uniq(deps);
         }
 
         //load_step_1(callback)
@@ -735,8 +639,8 @@ var Fantasy = (function () {
             deps = deps.concat(find_explicit_deps());
 
             if(deps.length > 0) {
-                var trigger = shot_on_n(deps.length, load_step_2.bind(this, callback));
-                deps.forEach(function (dep) {
+                var trigger = _.after(deps.length, load_step_2.bind(this, callback));
+                _.each(deps, function (dep) {
                     moduleManager.use(dep, trigger);
                 });
             } else {
@@ -759,15 +663,14 @@ var Fantasy = (function () {
         function load_step_2(callback) {
             if (level.content && level.content.download) {
                 var dlc_names = Object.keys(level.content.download);
-                var trigger = shot_on_n(dlc_names.length, load_step_3.bind(this, callback));
-                dlc_names.forEach(function (dlc_name) {
+                var trigger = _.after(dlc_names.length, load_step_3.bind(this, callback));
+                _.each(level.content.download, function (dlc, dlc_name) {
                     if(!enviroment.content.hasOwnProperty(dlc_name)) {
-                        var dlc = this[dlc_name];
                         enviroment.content[dlc_name] = load_dlc(dlc, trigger);
                     } else {
                         trigger();
                     }
-                }, level.content.download);
+                });
             } else {
                 load_step_3(callback);
             }
@@ -787,13 +690,11 @@ var Fantasy = (function () {
 
         function load_step_3(callback) {
             if (level.content && level.content.abstraction) {
-                var abstraction_names = Object.keys(level.content.abstraction);
-                abstraction_names.forEach(function (abstraction_name) {
+                _.each(level.content.abstraction, function (abstraction, abstraction_name) {
                     if(!enviroment.content.hasOwnProperty(abstraction_name)) {
-                        var abstraction = this[abstraction_name];
                         enviroment.content[abstraction_name] = load_abstraction(abstraction);
                     }
-                }, level.content.abstraction);
+                });
             }
             load_step_4(callback);
         }
@@ -815,15 +716,14 @@ var Fantasy = (function () {
             var components = [];
             
             if (node.components) {
-                node.components.forEach(function (component) {
+                _.each(node.components, function (component) {
                     components.push(load_component(component));
                 });
             }
             var sub = node.tree || node.subnodes;
             if (sub) {
-                var subnode_names = Object.keys(sub);
-                subnode_names.forEach(function (subnode_name) {
-                    subnodes[subnode_name] = load_node(subnode_name, sub[subnode_name]);
+                _.each(sub, function (subnode, subnode_name) {
+                    subnodes[subnode_name] = load_node(subnode_name, subnode);
                 });
             }
             var realnode = new Node(node_name, node.enabled, components, node.layer, new Transform(node.x, node.y, node.z, node.rotation, node.scale_x || node.scale, node.scale_y || node.scale, node.scale_z || node.scale), subnodes);
@@ -857,7 +757,7 @@ var Fantasy = (function () {
         canvas.height = window.innerHeight;
 
         if(loaded) {
-            displays.forEach(function (display) {
+            _.each(displays, function (display) {
                 display.update_size();
             });
         }
@@ -949,68 +849,81 @@ var Fantasy = (function () {
         context.fillStyle = "#000000";
         context.fillRect(0, 0, canvas.width, canvas.height);
 
-        displays.forEach(function (display) {
+        _.each(displays, function (display) {
             display.draw();
         });
 
         context.restore();
     }
 
-    return {
-        Init: function (cnvname) {
-            console.log('Initializing...');
-            if (cnvname) {
-                canvasname = cnvname;
-                canvas = document.getElementById(canvasname);
-            } else {
-                canvas = document.createElement('canvas');
-                canvas.id = 'canvas';
-                canvasname = 'canvas';
-                document.appendchild(canvas);
-            }
-            var fullscreen = false;
-            if (fullscreen) {
-                //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
-            } else {
-                resize_canvas();
-                window.addEventListener('resize', resize_canvas);
-            }
-
-            context = canvas.getContext('2d');
-            content = {};
-
-            enviroment = {
-                canvasname: cnvname,
-                canvas: canvas,
-                context: context,
-                content: content,
-                get_xhr: getXMLHttpRequestObject,
-                moduleManager: moduleManager,
-                addDisplay: add_display
-            };
-        },
-        Load: function (levelfile, callback) {
-            loaded = false;
-            console.log('Loading level from ' + levelfile);
-            var xhr = getXMLHttpRequestObject();
-            xhr.open('GET', levelfile, false);
-            xhr.send(null);
-            var level = JSON.parse(xhr.responseText);
-
-            displays = [];
-            enviroment.content = content;
-            enviroment.level = level;
-            Node.FromLevel('root', level, callback);
-        },
-        StartLoop: function (root) {
-            enviroment.root = root;
-            enviroment.root.load();
-
-            loaded = true;
-
-            window.addEventListener('click', onclick.bind(this));
-
-            setInterval(tick.bind(this, 1 / 45), 1000 / 45);
+    fantasy.init = function (cnvname) {
+        console.log('Initializing...');
+        if (cnvname) {
+            canvasname = cnvname;
+            canvas = document.getElementById(canvasname);
+        } else {
+            canvas = document.createElement('canvas');
+            canvas.id = 'canvas';
+            canvasname = 'canvas';
+            document.appendchild(canvas);
         }
+        var fullscreen = false;
+        if (fullscreen) {
+            //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
+        } else {
+            resize_canvas();
+            window.addEventListener('resize', resize_canvas);
+        }
+
+        context = canvas.getContext('2d');
+        content = {};
+
+        enviroment = {
+            canvasname: cnvname,
+            canvas: canvas,
+            context: context,
+            content: content,
+            get_xhr: getXMLHttpRequestObject,
+            moduleManager: moduleManager,
+            addDisplay: add_display
+        };
+    };
+    fantasy.load = function (levelfile, callback) {
+        loaded = false;
+        console.log('Loading level from ' + levelfile);
+        var xhr = getXMLHttpRequestObject();
+        xhr.open('GET', levelfile, false);
+        xhr.send(null);
+        var level = JSON.parse(xhr.responseText);
+
+        displays = [];
+        enviroment.content = content;
+        enviroment.level = level;
+        Node.FromLevel('root', level, callback);
+    };
+    fantasy.start = function (root) {
+        fantasy.stop();
+
+        enviroment.root = root;
+        enviroment.root.load();
+
+        window.addEventListener('click', onclick.bind(this));
+
+        tick_interval = setInterval(tick.bind(this, 1 / 45), 1000 / 45);
+        loaded = true;
+    };
+    fantasy.stop = function () {
+        loaded = false;
+        if(tick_interval) {
+            clearInterval(tick_interval);
+            tick_interval = false;
+        }
+        if(enviroment.root) {
+            enviroment.root.unload();
+            enviroment.root = root = false;
+        }
+    };
+    fantasy.root = function () {
+        return enviroment.root;
     };
 })();
