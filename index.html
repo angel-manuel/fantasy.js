@@ -9,12 +9,13 @@
 
 <body>
 	<canvas id="canvas">Parece que su navegador no soporta canvas</canvas>
-	<script src="oop.js"></script>
-	<script src="fantasy.js"></script>
+	<script src="js/lib/underscore.js"></script>
+	<script src="js/lib/oop.js"></script>
+	<script src="js/fantasy.js"></script>
 	<script>
 		window.addEventListener('load', function(){
 			Fantasy.Init('canvas');
-			Fantasy.Load('level/prefabtest.json', function(root) {
+			Fantasy.Load('level/skyline.json', function(root) {
 				Fantasy.StartLoop(root);
 			});
 		});
