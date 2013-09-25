@@ -28,8 +28,8 @@ var map = Content.extend({
         var tilemaps = Object.keys(this.map.tilemaps);
 
         this.onload = onload;
-        var trigger = shot_on_n(tilemaps.length, this.load_tilemaps.bind(this));
-        tilemaps.forEach(function (tilemap) {
+        var trigger = _.after(tilemaps.length, _.bind(this.load_tilemaps, this));
+        _.each(tilemaps, function (tilemap) {
             var tilemap_src = this.map.tilemaps[tilemap];
             var i = new image(tilemap_src, trigger);
             this.images[tilemap] = i;
@@ -39,12 +39,10 @@ var map = Content.extend({
         this._super(src, onload);
     },
     load_tilemaps: function () {
-        var tilemaps = Object.keys(this.images);
-        
-        tilemaps.forEach(function (tilemapname) {
-            this.tilemaps[tilemapname] = new tilemap(
+        _.each(this.images, function (image, image_name) {
+            this.tilemaps[image_name] = new tilemap(
                 {
-                    image: '_' + tilemapname,
+                    image: '_' + image_name,
                     tile_width: this.tile_width,
                     tile_height: this.tile_height
                 }
@@ -54,10 +52,7 @@ var map = Content.extend({
         this.predraw();
     },
     predraw: function () {
-        var layer_names = Object.keys(this.map.layers);
-        
-        layer_names.forEach(function (layer_name) {
-            var layer = this.map.layers[layer_name];
+        _.each(this.map.layers, function (layer, layer_name) {
             var tilemap = this.tilemaps[layer.tilemap];
 
             var pixel_width = (layer.width + layer.height)*this.tile_width/2;
@@ -104,8 +99,7 @@ var map = Content.extend({
         ctx.translate(this.pixel_width/2, 0);
         ctx.save();
         ctx.translate(0, this.tile_height/4 * (layer_names.length - 1));
-        layer_names.forEach(function (layer_name) {
-            var layer = this.map.layers[layer_name];
+        _.each(this.map.layers, function (layer, layer_name) {
             var tilemap = this.tilemaps[layer.tilemap];
             var layer_image = this.preimages[layer_name];
             

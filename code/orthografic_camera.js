@@ -71,7 +71,7 @@ var orthografic_camera = Component.extend({
             }
         });
 
-        draw_list.forEach(function (draw_order) {
+        _.each(draw_list, function (draw_order) {
             enviroment.context.save();
             draw_order.transform.apply();
             draw_order.draw();

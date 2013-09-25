@@ -190,7 +190,7 @@
             this.rotation = this.rotation + transform.rotation;
         },
         transformPoint: function(point) {
-            var tpoint = point.clone();
+            var tpoint = _.clone(point);
             tpoint.x -= this.x;
             tpoint.y -= this.y;
             tpoint.z -= this.z;
@@ -207,7 +207,7 @@
             return tpoint;
         },
         untransformPoint: function(point) {
-            var tpoint = point.clone();
+            var tpoint = _.clone(point);
             var s = Math.sin(-this.rotation), c = Math.cos(-this.rotation);
             var x = point.x, y = point.y;
             tpoint.x = x*c - y*s;
@@ -374,6 +374,10 @@
         //path - Array contienendo una ruta en el arbol
         //Devuelve el nodo en path o undefined
         get: function (path) {
+            if (path && typeof path === "string") {
+                path = path.split('/');
+            }
+
             if (!path || path.length == 0) {
                 return this;
             }
@@ -384,6 +388,16 @@
             } else {
                 return this.subnodes[next].get(path);
             }
+        },
+        list: function () {
+            return _.keys(this.subnodes);
+        },
+        tree: function () {
+            var ret = {};
+            _.each(this.subnodes, function (subnode, subnode_name) {
+                ret[subnode_name] = subnode.tree();
+            });
+            return ret;
         },
         //addComponent(component)
         //component - instancia de Component

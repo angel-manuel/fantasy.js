@@ -28,7 +28,7 @@ var physics_engine_2d = Component.extend({
         this.bodies[ref - 1] = undefined;
     },
     applyGravity: function () {
-        this.bodies.forEach(function (body) {
+        _.each(this.bodies, function (body) {
             if(body && !body.isFixed()) {
                 body.applyAcceleration(this.gravity);
             }
@@ -40,12 +40,12 @@ var physics_engine_2d = Component.extend({
         this._super(dt);
     },
     step: function (dt) {
-        this.bodies.forEach(function (body) {
+        _.each(this.bodies, function (body) {
             if(!body.isFixed()) {
                 var body_state = body.getState(), body_problem = body.getProblem();
                 body.setState(solver.solve(body_state, body_problem, dt));
             }
-        }, this);
+        });
     }
 });
 

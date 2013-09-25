@@ -12,10 +12,9 @@ var animation_collection = Abstractor.extend({
         this.animations = {};
         this.animations_index = args.index;
 
-        for(var animation_name in this.animations_index) {
-            if(this.animations_index.hasOwnProperty(animation_name)) {
-                this.animations[animation_name] = new animation({
-                    index: this.animations_index[animation_name],
+        _.each(this.animations_index, function(anim, anim_name) {
+                this.animations[anim_name] = new animation({
+                    index: anim,
                     time: this.time,
                     tile_width: this.tile_width,
                     tile_height: this.tile_height,

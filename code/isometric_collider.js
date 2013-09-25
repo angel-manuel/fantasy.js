@@ -134,7 +134,8 @@ var isometric_collider = Component.extend({
             }
 
             var sq_2 = 1.4142135623730951;
-            [
+
+            _.each([
             [Path.NorthWest, x - 1, y - 1, sq_2],
             [Path.North, x, y - 1, 1],
             [Path.NorthEast, x + 1, y - 1, sq_2],
@@ -143,7 +144,7 @@ var isometric_collider = Component.extend({
             [Path.SouthWest, x - 1, y + 1, sq_2],
             [Path.South, x, y + 1, 1],
             [Path.SouthEast, x + 1, y + 1, sq_2]
-            ].forEach(function (n) {
+            ], function (n) {
                 nx = n[1];
                 ny = n[2]
                 cost = n[3];
@@ -171,17 +172,17 @@ var isometric_collider = Component.extend({
         }
 
         var target_pos = tx+ty*w;
-        if(isfalse(map[target_pos].parent)) {
+        if(!map[target_pos].parent) {
             return [];
         } else {
             path.push(target_pos);
             var parent = map[target_pos].parent;
-            while(!isfalse(parent)) {
+            while(parent) {
                 path.push(parent);
                 parent = map[parent].parent;
             }
 
-            var ret = path.reverse().map(function (pos) {
+            var ret = _.map(_.reverse(path), function (pos) {
                 return {
                     x: pos % w,
                     y: Math.floor(pos / w),

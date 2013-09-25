@@ -40,7 +40,7 @@ var polygon_collider = Component.extend({
     },
     getNormals: function () {
         var rotation = this.gameobject.transform.rotation;
-        return this.normals.map(function (normal) {
+        return _.map(this.normals, function (normal) {
             var ret = vector2.Rotate(normal, rotation);
             ret.normalize();
             return ret;
@@ -48,22 +48,22 @@ var polygon_collider = Component.extend({
     },
     project: function (axis) {
         var rotation = this.gameobject.transform.rotation;
-        var rot_edges = this.edges.map(function (normal) {
+        var rot_edges = _.map(this.edges, function (normal) {
             return vector2.Rotate(normal, rotation);
-        }, this);
+        });
 
         var scale_x = this.gameobject.transform.scale_x;
         var scale_y = this.gameobject.transform.scale_y;
-        var proj = rot_edges.map(function (edge) {
+        var proj = _.map(rot_edges, function (edge) {
             edge.x *= scale_x;
             edge.y *= scale_y;
             return vector2.ProjectionLength(edge, axis);
-        }, this);
+        });
 
         var position = new vector2(this.gameobject.transform.x, this.gameobject.transform.y);
         var desviation = vector2.ProjectionLength(position, axis);
 
-        var corr_proj = proj.map(function (vertex_projection) {
+        var corr_proj = _.map(proj, function (vertex_projection) {
             return vertex_projection + desviation;
         });
 

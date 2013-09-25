@@ -13,7 +13,7 @@ var tilemap = Abstractor.extend({
 
         if(args.index) {
             this.index = args.index;
-            args.index.forEach(function (index) {
+            _.each(args.index, function (index) {
                 if(index <= this.tile_number) {
                     index--;
                     var x = index % this.width,

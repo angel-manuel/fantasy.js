@@ -196,12 +196,12 @@ var collision_system_2d = Component.extend({
         }
 
         var normals = A.getNormals();
-        var contact = normals.every(function (normal) {
+        var contact = _.every(normals, function (normal) {
             var a_proj = A.project(normal);
-            var a_max = a_proj.max();
-            var a_min = a_proj.min();
+            var a_max = _.max(a_proj);
+            var a_min = _.min(a_proj);
             var b_proj = B.project(normal);
-            collision_depth = collision_depth.map(function (depth, index) {
+            collision_depth = _.map(collision_depth, function (depth, index) {
                 if(depth) {
                     var b_point_proj = b_proj[index];
                     if(a_min <= b_point_proj && b_point_proj <= a_max) {
@@ -231,18 +231,25 @@ var collision_system_2d = Component.extend({
                     return undefined;
                 }
             });
-            return collision_depth.some(function (depth) { return depth; });
+            return _.some(collision_depth);
         });
 
         if(contact) {
             if(debug)
                 alert('collision_depth = ' + collision_depth);
 
-            var min_depth_pos = collision_depth.find_max();
+            var max_depth_pos = -1;
+            var max_depth = Number.NEGATIVE_INFINITY;
+            _.each(collision_depth, function(depth, index) {
+                if(depth > max_depth) {
+                    max_depth = depth;
+                    max_depth_pos = index;
+                } 
+            });
             
-            var penetration = collision_depth[min_depth_pos];
-            var collision_point_at_b = B.getEdge(min_depth_pos);
-            var collision_normal = collision_axis[min_depth_pos];
+            var penetration = collision_depth[max_depth_pos];
+            var collision_point_at_b = B.getEdge(max_depth_pos);
+            var collision_normal = collision_axis[max_depth_pos];
             
             var collision = new collision_description_2d(A, B, collision_point_at_b, collision_normal, penetration);
             return collision;

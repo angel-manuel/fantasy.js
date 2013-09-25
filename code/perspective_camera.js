@@ -58,7 +58,7 @@ var perspective_camera = Component.extend({
         });
 
         enviroment.context.translate(-x + this.pixel_width/2, -y + this.pixel_height/2);
-        draw_list.forEach(function (draw_order) {
+        _.each(draw_list, function (draw_order) {
             if(draw_order.transform.z >= z) {
                 enviroment.context.save();
 
