@@ -1,105 +1,10 @@
-//isfalse(val)
-//Devuelve verdadero si val es undefined o false
-
-function isfalse(val) {
-    return (val === null) || (val === undefined) || (val === false);
-}
-
-function xor(a, b) {
-    return (a) ? !b : b;
-}
-
-Array.prototype.max = function () {
-    return this.reduce(function(previousValue, currentValue, index, array){
-        if(isfalse(currentValue)) { return previousValue; }
-        return (previousValue < currentValue) ? currentValue : previousValue;
-    }, Number.NEGATIVE_INFINITY);
-};
-
-Array.prototype.min = function () {
-    return this.reduce(function(previousValue, currentValue, index, array){
-        if(isfalse(currentValue)) { return previousValue; }
-        return (previousValue < currentValue) ? previousValue : currentValue;
-    }, Number.POSITIVE_INFINITY);
-};
-
-Array.prototype.find_max = function () {
-    var maxval = Number.NEGATIVE_INFINITY, maxpos; 
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(this[i] && maxval < this[i]) {
-            maxpos = i;
-            maxval = this[i];
-        }
-    }
-    return maxpos;
-};
-
-Array.prototype.find_min = function () {
-    var minval = Number.POSITIVE_INFINITY, minpos; 
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(this[i] && this[i] < minval) {
-            minpos = i;
-            minval = this[i];
-        }
-    }
-    return minpos;
-};
-
-Array.prototype.find = function (callback) {
-    var ret = Array();
-    callback = callback || function (val) { return val; };
-    for(var i=0, len=this.length; i<len; ++i) {
-        if(callback(this[i])) {
-            ret.push(i);
-        }
-    }
-    return ret;
-};
-
-if(!Object.prototype.clone) {
-    Object.prototype.clone = function clone() {
-        var target = {};
-            for (var i in this) {
-                if (this.hasOwnProperty(i)) {
-                    target[i] = this[i];
-                } else if(this.__proto__.hasOwnProperty(i)) {
-                    target.__proto__[i] = this.__proto__[i];
-                }
-            }
-        return target;
-    }
-}
-
-function callback_split(callback1, callback2) {
-    return function () {
-        callback1();
-        callback2();
-    }
-}
-
-function clamp(val, min, max) {
-    return Math.max(min, Math.min(max, val));
-}
-
-//shot_on_n(n, callback)
-//Devuelve una función que al ser llamada n veces o más llama a callback
-
-function shot_on_n(n, callback) {
-    var left = n;
-    if (left <= 0) {
-        setTimeout(callback, 0);
-        return callback;
-    }
-    return function () {
-        --left;
-        if (left === 0) {
-            callback();
-        }
-    }
-}
-
-var Fantasy = (function () {
+(function (){
     "use strict";
+    
+    var global_object = window || this;
+
+    var fantasy;
+    global_object.fantasy = fantasy = {};
 
     var debug = true;
 
@@ -218,7 +123,7 @@ var Fantasy = (function () {
                 var module = catalog[modulename];
                 if (module.depends) {
                     var deps = module.depends;
-                    var trigger = shot_on_n(deps.length, postload.bind(this, modulename, callback));
+                    var trigger = _.after(deps.length, postload.bind(this, modulename, callback));
                     deps.forEach(function (dep) {
                         this.use(dep, trigger);
                     }, this);
@@ -956,61 +861,59 @@ var Fantasy = (function () {
         context.restore();
     }
 
-    return {
-        Init: function (cnvname) {
-            console.log('Initializing...');
-            if (cnvname) {
-                canvasname = cnvname;
-                canvas = document.getElementById(canvasname);
-            } else {
-                canvas = document.createElement('canvas');
-                canvas.id = 'canvas';
-                canvasname = 'canvas';
-                document.appendchild(canvas);
-            }
-            var fullscreen = false;
-            if (fullscreen) {
-                //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
-            } else {
-                resize_canvas();
-                window.addEventListener('resize', resize_canvas);
-            }
-
-            context = canvas.getContext('2d');
-            content = {};
-
-            enviroment = {
-                canvasname: cnvname,
-                canvas: canvas,
-                context: context,
-                content: content,
-                get_xhr: getXMLHttpRequestObject,
-                moduleManager: moduleManager,
-                addDisplay: add_display
-            };
-        },
-        Load: function (levelfile, callback) {
-            loaded = false;
-            console.log('Loading level from ' + levelfile);
-            var xhr = getXMLHttpRequestObject();
-            xhr.open('GET', levelfile, false);
-            xhr.send(null);
-            var level = JSON.parse(xhr.responseText);
-
-            displays = [];
-            enviroment.content = content;
-            enviroment.level = level;
-            Node.FromLevel('root', level, callback);
-        },
-        StartLoop: function (root) {
-            enviroment.root = root;
-            enviroment.root.load();
-
-            loaded = true;
-
-            window.addEventListener('click', onclick.bind(this));
-
-            setInterval(tick.bind(this, 1 / 45), 1000 / 45);
+    fantasy.init = function (cnvname) {
+        console.log('Initializing...');
+        if (cnvname) {
+            canvasname = cnvname;
+            canvas = document.getElementById(canvasname);
+        } else {
+            canvas = document.createElement('canvas');
+            canvas.id = 'canvas';
+            canvasname = 'canvas';
+            document.appendchild(canvas);
         }
+        var fullscreen = false;
+        if (fullscreen) {
+            //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
+        } else {
+            resize_canvas();
+            window.addEventListener('resize', resize_canvas);
+        }
+
+        context = canvas.getContext('2d');
+        content = {};
+
+        enviroment = {
+            canvasname: cnvname,
+            canvas: canvas,
+            context: context,
+            content: content,
+            get_xhr: getXMLHttpRequestObject,
+            moduleManager: moduleManager,
+            addDisplay: add_display
+        };
+    };
+    fantasy.load = function (levelfile, callback) {
+        loaded = false;
+        console.log('Loading level from ' + levelfile);
+        var xhr = getXMLHttpRequestObject();
+        xhr.open('GET', levelfile, false);
+        xhr.send(null);
+        var level = JSON.parse(xhr.responseText);
+
+        displays = [];
+        enviroment.content = content;
+        enviroment.level = level;
+        Node.FromLevel('root', level, callback);
+    };
+    fantasy.start = function (root) {
+        enviroment.root = root;
+        enviroment.root.load();
+
+        loaded = true;
+
+        window.addEventListener('click', onclick.bind(this));
+
+        setInterval(tick.bind(this, 1 / 45), 1000 / 45);
     };
 })();
