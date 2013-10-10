@@ -844,7 +844,7 @@
         var x = event.clientX,
             y = event.clientY;
 
-        for(var i=displays.length - 1; i--;) {
+        for(var i=displays.length; i--;) {
             var display = displays[i];
             if(display.pixel_x < x && x < (display.pixel_x + display.pixel_width) && display.pixel_y < y && y < (display.pixel_y + display.pixel_height)) {
                 if(display.onclick(event))

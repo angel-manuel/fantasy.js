@@ -59,7 +59,14 @@ var isometric_collider = Component.extend({
         if(x < 0 || x > this.matrix.width || y < 0 || y > this.matrix.height) {
             return true;
         }
-        return isfalse(this.matrix.get(x, y));
+
+        var mval = this.matrix.get(x, y);
+
+        if(mval === null) {
+            return true;
+        } else {
+            return false;
+        }
     },
     collisionAtLocal: function (x, y) {
         var mx, my;
@@ -110,13 +117,23 @@ var isometric_collider = Component.extend({
 
         var best_open_list, pos, node, x, y, npos, nx, ny, cost, G;
         while(openlist.length > 0) {
-            var best_open_list = openlist.map(function (open) {
+            var open_list_val = openlist.map(function (open) {
                 var o = map[open];
                 if(!o) {
                     return Number.POSITIVE_INFINITY;
                 }
                 return o.G + o.H;
-            }).find_min();
+            });
+
+            var min = Number.POSITIVE_INFINITY;
+            var best_open_list = -1;
+            _.each(open_list_val, function(val, index) {
+                if(val < min) {
+                    min = val;
+                    best_open_list = index;
+                }
+            });
+
             var pos = openlist[best_open_list];
             delete openlist[best_open_list];
 
@@ -182,7 +199,8 @@ var isometric_collider = Component.extend({
                 parent = map[parent].parent;
             }
 
-            var ret = _.map(_.reverse(path), function (pos) {
+            path.reverse();
+            var ret = _.map(path, function (pos) {
                 return {
                     x: pos % w,
                     y: Math.floor(pos / w),

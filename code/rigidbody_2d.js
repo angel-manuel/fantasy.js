@@ -55,7 +55,7 @@ var rigidbody_2d = Component.extend({
         this.torque += angular_acceleration;
     },
     applyForce: function (force) {
-        this.force.add(this.vector2.Div(force, this.mass));
+        this.force.add(vector2.Div(force, this.mass));
     },
     applyTorque: function (torque) {
         this.torque += torque/this.angular_inertia;
@@ -106,22 +106,6 @@ var rigidbody_2d = Component.extend({
         this.force.y = 0;
         this.torque = 0;
     },
-    problem: function (state) {
-        return [
-            state[3],
-            state[4],
-            state[5],
-            state[6],
-            state[7],
-            state[8],
-            0,
-            0,
-            0        
-        ];
-    },
-    getProblem: function () {
-        return this.problem;
-    },
     getSpeed: function(at) {
         if(this.isFixed()) {
             return 0;
@@ -143,6 +127,19 @@ var rigidbody_2d = Component.extend({
         'mass = '+ this.mass + '\n' +
         'angular_inertia = ' + this.angular_inertia + '\n' +
         'bounciness = ' + this.bounciness;
+    },
+    problem: function (state) {
+        return [
+            state[3],
+            state[4],
+            state[5],
+            state[6],
+            state[7],
+            state[8],
+            0,
+            0,
+            0        
+        ];
     }
 });
 

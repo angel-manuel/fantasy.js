@@ -3,7 +3,7 @@ var Component = enviroment.moduleManager.get('component');
 var vector2 = enviroment.moduleManager.get('vector2');
 
 var debug = false;
-var on_neg_vel = false;
+var on_neg_vel = true;
 
 var collision_description_2d = Class.extend({
     init: function(A, B, at, normal, penetration) {
@@ -124,7 +124,6 @@ var collision_description_2d = Class.extend({
                         alert(
                         'A = ' + A.gameobject.node_name + '\n' +
                         'B = ' + B.gameobject.node_name + '\n');
-                    debug = true;
                     alert(
                     'ELSE\n' +
                     'collision = {\n' + this.toString() + '\n}\n' +

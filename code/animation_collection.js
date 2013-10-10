@@ -13,15 +13,14 @@ var animation_collection = Abstractor.extend({
         this.animations_index = args.index;
 
         _.each(this.animations_index, function(anim, anim_name) {
-                this.animations[anim_name] = new animation({
-                    index: anim,
-                    time: this.time,
-                    tile_width: this.tile_width,
-                    tile_height: this.tile_height,
-                    image: this.image
-                });
-            }
-        }
+            this.animations[anim_name] = new animation({
+                index: anim,
+                time: this.time,
+                tile_width: this.tile_width,
+                tile_height: this.tile_height,
+                image: this.image
+            });
+        }, this);
 
         this._super(args);
     },

@@ -98,7 +98,7 @@ var map = Content.extend({
 
         ctx.translate(this.pixel_width/2, 0);
         ctx.save();
-        ctx.translate(0, this.tile_height/4 * (layer_names.length - 1));
+        ctx.translate(0, this.tile_height/4 * (_.keys(this.map.layers).length - 1));
         _.each(this.map.layers, function (layer, layer_name) {
             var tilemap = this.tilemaps[layer.tilemap];
             var layer_image = this.preimages[layer_name];

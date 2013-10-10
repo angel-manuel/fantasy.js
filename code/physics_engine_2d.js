@@ -42,8 +42,8 @@ var physics_engine_2d = Component.extend({
     step: function (dt) {
         _.each(this.bodies, function (body) {
             if(!body.isFixed()) {
-                var body_state = body.getState(), body_problem = body.getProblem();
-                body.setState(solver.solve(body_state, body_problem, dt));
+                var body_state = body.getState();
+                body.setState(solver.solve(body_state, body.__proto__.problem, dt));
             }
         });
     }
