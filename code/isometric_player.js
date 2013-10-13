@@ -13,6 +13,7 @@ var isometric_player = Component.extend({
         
         this.walking_path = [];
         this.walking_time = 0;
+        this.walking_initial_time = 0;
         this.walking_orientation = 1;
 
         this.idle_time = 0;
@@ -35,7 +36,8 @@ var isometric_player = Component.extend({
         var target = this.collider.transformToMap(x, y);
         
         var path = this.collider.pathOverMap(start.x, start.y, target.x, target.y);
-        if(path) {
+        if(path && path.length > 0) {
+            this.walking_initial_time = this.walking_time;
             this.walking_time = 0;
             this.walking_path = path;
             this.state = PlayerState.Walking;
@@ -74,7 +76,7 @@ var isometric_player = Component.extend({
     draw: function () {
         switch (this.state) {
             case PlayerState.Walking:
-                var animation_time = this.walking_time % this.walking_speed;
+                var animation_time = (this.walking_time + this.walking_initial_time) % this.walking_speed;
                 this.animations_collection.get(this.walking_orientation).draw(animation_time);
                 break;
             case PlayerState.Idle:

@@ -13,7 +13,7 @@ var Path = {
     all: function () {
         return [
             1, 2, 3, 4, 5, 6, 7, 8
-        ]
+        ];
     },
     getDirection: function (orientation) {
         switch (orientation) {
@@ -117,7 +117,7 @@ var isometric_collider = Component.extend({
 
         var best_open_list, pos, node, x, y, npos, nx, ny, cost, G;
         while(openlist.length > 0) {
-            var open_list_val = openlist.map(function (open) {
+            var open_list_val = _.map(openlist, function (open) {
                 var o = map[open];
                 if(!o) {
                     return Number.POSITIVE_INFINITY;
@@ -126,7 +126,7 @@ var isometric_collider = Component.extend({
             });
 
             var min = Number.POSITIVE_INFINITY;
-            var best_open_list = -1;
+            best_open_list = -1;
             _.each(open_list_val, function(val, index) {
                 if(val < min) {
                     min = val;
@@ -134,7 +134,7 @@ var isometric_collider = Component.extend({
                 }
             });
 
-            var pos = openlist[best_open_list];
+            pos = openlist[best_open_list];
             delete openlist[best_open_list];
 
             
@@ -163,7 +163,7 @@ var isometric_collider = Component.extend({
             [Path.SouthEast, x + 1, y + 1, sq_2]
             ], function (n) {
                 nx = n[1];
-                ny = n[2]
+                ny = n[2];
                 cost = n[3];
                 npos = nx+ny*w;
                 if(npos >= 0 && !(nx < 0 || nx > w || ny < 0 || ny > h) && !this.collisionAtMap(nx, ny)) {
