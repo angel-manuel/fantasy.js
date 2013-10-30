@@ -24,15 +24,15 @@ var solver = Class.extend({
             tmpstate[i] = state0[i] + k1[i]*dt/2;
         }
         k2 = df(tmpstate);
-        for(var i=0; i<len; ++i) {
+        for(i=0; i<len; ++i) {
             tmpstate[i] = state0[i] + k2[i]*dt/2;
         }
         k3 = df(tmpstate);
-        for(var i=0; i<len; ++i) {
+        for(i=0; i<len; ++i) {
             tmpstate[i] = state0[i] + k3[i]*dt;
         }
         k4 = df(tmpstate);
-        for(var i=0; i<len; ++i) {
+        for(i=0; i<len; ++i) {
             retstate[i] = state0[i] + (k1[i]/6 + k2[i]/3 + k3[i]/3 + k4[i]/6)*dt;
         }
         return retstate;

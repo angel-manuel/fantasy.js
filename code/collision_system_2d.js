@@ -47,13 +47,13 @@ var collision_description_2d = Class.extend({
                 
                 if(A.isFixed()) {
                     if(!B.isFixed()) {
-                        var pen = vector2.Mul(this.normal, this.penetration);
-                        B.gameobject.translate(pen.x, pen.y);
+                        var pen1 = vector2.Mul(this.normal, this.penetration);
+                        B.gameobject.translate(pen1.x, pen1.y);
                     }
                 } else {
                     if(B.isFixed()) {
-                        var pen = vector2.Mul(this.normal, -this.penetration);
-                        A.gameobject.translate(pen.x, pen.y);
+                        var pen2 = vector2.Mul(this.normal, -this.penetration);
+                        A.gameobject.translate(pen2.x, pen2.y);
                     } else {
                         var penB = vector2.Mul(this.normal, this.penetration/2);
                         B.gameobject.translate(penB.x, penB.y);
@@ -182,8 +182,8 @@ var collision_system_2d = Component.extend({
                         B.gameobject.shot('collision', b_vs_a, false);
                         A.gameobject.shot('collision', b_vs_a.getBSide(), false);
                     }
-                }            
-            }        
+                }
+            }
         }
         this._super(dt);
     },
@@ -243,7 +243,7 @@ var collision_system_2d = Component.extend({
                 if(depth > max_depth) {
                     max_depth = depth;
                     max_depth_pos = index;
-                } 
+                }
             });
             
             var penetration = collision_depth[max_depth_pos];

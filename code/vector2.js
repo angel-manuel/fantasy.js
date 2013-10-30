@@ -12,7 +12,7 @@ var vector2 = Class.extend({
     },
     add: function (B) {
         this.x += B.x;
-        this.y += B.y;    
+        this.y += B.y;
     },
     sub: function (B) {
         this.x -= B.x;
@@ -23,7 +23,7 @@ var vector2 = Class.extend({
         this.y *= b;
     },
     div: function (b) {
-        this.x /= b;    
+        this.x /= b;
         this.y /= b;
     },
     getNormal: function () {
@@ -45,13 +45,13 @@ var vector2 = Class.extend({
         this.x /= l;
         this.y /= l;
     },
-    rotate: function (angle) {   
+    rotate: function (angle) {
         var c = Math.cos(angle), s = Math.sin(angle);
         this.x = this.x*c - this.y*s;
         this.y = this.x*s + this.y*c;
     },
     toString: function () {
-        return '[' + this.x + ', ' + this.y + ']';    
+        return '[' + this.x + ', ' + this.y + ']';
     }
 });
 vector2.Add = function (A, B) {

@@ -14,7 +14,7 @@ var polygon_drawer = Component.extend({
         ctx.beginPath();
         ctx.moveTo(ed[0], ed[1]);
         for(var i=1, len=ed.length/2; i<len; ++i) {
-            ctx.lineTo(ed[2*i], ed[2*i + 1]);        
+            ctx.lineTo(ed[2*i], ed[2*i + 1]);
         }
         ctx.closePath();
         ctx.fill();

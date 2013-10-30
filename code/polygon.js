@@ -7,7 +7,7 @@ var polygon_collider = enviroment.moduleManager.get('polygon_collider');
 var rbp = rigidbody_2d.prototype;
 var real_rbp = {};
 
-for(name in rbp) {
+for(var name in rbp) {
     var val = rbp[name];
     real_rbp[name] = typeof val === "function" ? val.real : val;
 }
@@ -31,6 +31,6 @@ var polygon = polygon_collider_rigidbody_2d.extend({
         ctx.fill();
         this._super();
     }
-})
+});
 
 return polygon;

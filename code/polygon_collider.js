@@ -1,12 +1,12 @@
 //polygon_collider
 var Component = enviroment.moduleManager.get('component');
 var vector2 = enviroment.moduleManager.get('vector2');
-var bounding_sphere = enviroment.moduleManager.get('bounding_sphere');;
+var bounding_sphere = enviroment.moduleManager.get('bounding_sphere');
 
 var polygon_collider = Component.extend({
     init: function (args) {
         var edges = args.edges;
-        var edge_number = edges.length/2
+        var edge_number = edges.length/2;
         this.edges = new Array(edge_number);
         this.radius = 0;
         for(var i=0; i<edge_number; ++i) {
@@ -15,7 +15,7 @@ var polygon_collider = Component.extend({
             this.edges[i] = edge;
         }
         this.normals = new Array(edge_number);
-        for(var i=0; i<edge_number; ++i) {
+        for(i=0; i<edge_number; ++i) {
             var side = vector2.Sub(this.edges[(i+1) % edge_number], this.edges[i]);
             this.normals[i] = vector2.Normalize(side.getNormal());
         }

@@ -6,7 +6,7 @@ var tilemap = enviroment.moduleManager.get('tilemap');
 
 var map = Content.extend({
     init: function (src, onload) {
-        this.xhr = enviroment.get_xhr();        
+        this.xhr = enviroment.get_xhr();
 
         this.xhr.open('GET', src, false);
         this.xhr.send(null);

@@ -185,7 +185,7 @@ var isometric_collider = Component.extend({
                         openlist.push(npos);
                     }
                 }
-            }, this);       
+            }, this);
         }
 
         var target_pos = tx+ty*w;

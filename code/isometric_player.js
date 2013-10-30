@@ -49,7 +49,7 @@ var isometric_player = Component.extend({
                 var step = Math.floor(this.walking_time * this.walking_speed) + 1;
                 if(step >= this.walking_path.length) {
                     var last_token = this.walking_path.pop();
-                    var last_pos = this.collider.transformToWorld(last_token.x, last_token.y);                    
+                    var last_pos = this.collider.transformToWorld(last_token.x, last_token.y);
 
                     //this.gameobject.moveTo(last_pos.x, last_pos.y);
 

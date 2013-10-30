@@ -87,7 +87,7 @@ var orthografic_camera = Component.extend({
     onclick: function (pos) {
         var at = {
             x: pos.x*(this.pixel_width/this.hiddencanvas.width) - this.pixel_width/2 + this.gameobject.transform.x,
-            y: pos.y*(this.pixel_height/this.hiddencanvas.height) - this.pixel_height/2 + + this.gameobject.transform.y
+            y: pos.y*(this.pixel_height/this.hiddencanvas.height) - this.pixel_height/2 + this.gameobject.transform.y
         };
         enviroment.root.shot('click', at, true);
         return true;

@@ -16,7 +16,7 @@ var rigidbody_2d = Component.extend({
 
         if(args.hasOwnProperty('angular_inertia')) {
             if(args.angular_inertia <= 0) {
-                this.angular_inertia = Number.POSITIVE_INFINITY;            
+                this.angular_inertia = Number.POSITIVE_INFINITY;
             } else {
                 this.angular_inertia = args.angular_inertia*this.mass;
             }
@@ -37,7 +37,7 @@ var rigidbody_2d = Component.extend({
         this._super(args);
     },
     isFixed: function () {
-        return this.mass === Number.POSITIVE_INFINITY;    
+        return this.mass === Number.POSITIVE_INFINITY;
     },
     prepare: function (gameobject) {
         gameobject.addService('rigidbody_2d', this);
@@ -138,7 +138,7 @@ var rigidbody_2d = Component.extend({
             state[8],
             0,
             0,
-            0        
+            0
         ];
     }
 });

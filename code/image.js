@@ -33,7 +33,7 @@ var image = Content.extend({
                 onload();
             }
         } else if(typeof args === 'string') {
-            this.loaded = false
+            this.loaded = false;
             var src = args;
             this.sx = 0;
             this.sy = 0;

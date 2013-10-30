@@ -28,7 +28,7 @@ var prefab_binder = Component.extend({
 					var subnode_names = Object.keys(tree.subnodes);
 					subnode_names.forEach(function (subnode_name) {
 						gameobject.appendChild(tree.subnode[subnode_name]);
-					})
+					});
 					break;
 				case 'subnode':
 					gameobject.appendChild(tree);

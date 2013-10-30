@@ -32,7 +32,7 @@
             ref = new ActiveXObject("MSXML2.XMLHTTP.3.0");
         }
         return ref;
-    };
+    }
 
     //moduleManager
     //Descarga dinamicamente mediante xhr el codigo necesitado para cada modulo
@@ -68,15 +68,15 @@
                     if(debug) {
                         pre_constructor = eval('function ' + modulename + '(enviroment) {' + resp + '};' + modulename);
                     } else {
-                        pre_constructor = Function('enviroment', resp);
+                        pre_constructor = new Function('enviroment', resp);
                     }
 
                     callback(pre_constructor(enviroment));
                 }
-            }.bind(this);
+            };
             xhr.open('GET', src, false);
             xhr.send(null);
-        };
+        }
 
         //load_into_modules(modulename)
         //Carga el modulo de nombre modulename y llama a las funciones de subscriptions
@@ -89,7 +89,7 @@
                     subscription(result);
                 });
             }, modulename);
-        };
+        }
 
         //postload(modulename, callback)
         //Subscribe callback para ser llama tras la carga de modulename
@@ -112,8 +112,7 @@
             use: function (modulename, callback) {
                 if (modules.hasOwnProperty(modulename)) {
                     //Si el modulo está cargado simplemente se lo pasamos a callback
-                    var module = modules[modulename];
-                    callback(module);
+                    callback(modules[modulename]);
                     return;
                 }
 
@@ -334,14 +333,13 @@
             this.services = {};
             this.listeners = {};
             this.subnodes = {};
-
             _.each(components, function (component) {
                 this.addComponent(component);
             }, this);
             
             var subnode_names = Object.keys(subnodes);
             _.each(subnode_names, function (subnode_name) {
-                this.appendChild(subnodes[subnode_name]);;
+                this.appendChild(subnodes[subnode_name]);
             }, this);
         },
         //attach(eventname, callback)
@@ -378,7 +376,7 @@
                 path = path.split('/');
             }
 
-            if (!path || path.length == 0) {
+            if (!path || path.length === 0) {
                 return this;
             }
 
@@ -417,7 +415,6 @@
                 return this.components.push(component);
             } else {
                 throw 'component no es una instancia de Component';
-                return undefined;
             }
         },
         //deleteComponent(ref)
@@ -653,7 +650,7 @@
             deps = deps.concat(find_explicit_deps());
 
             if(deps.length > 0) {
-                var trigger = _.after(deps.length, load_step_2.bind(this, callback));
+                var trigger = _.after(deps.length, load_step_2.bind(null, callback));
                 _.each(deps, function (dep) {
                     moduleManager.use(dep, trigger);
                 });
@@ -667,8 +664,8 @@
 
         function load_dlc(dlc, callback) {
             console.log('Loading ' + dlc.type + ' from ' + dlc.src);
-            var constructor = moduleManager.get(dlc.type);
-            return new constructor(dlc.src, callback);
+            var Constructor = moduleManager.get(dlc.type);
+            return new Constructor(dlc.src, callback);
         }
 
         //load_step_2(callback)
@@ -677,7 +674,7 @@
         function load_step_2(callback) {
             if (level.content && level.content.download) {
                 var dlc_names = Object.keys(level.content.download);
-                var trigger = _.after(dlc_names.length, load_step_3.bind(this, callback));
+                var trigger = _.after(dlc_names.length, load_step_3.bind(null, callback));
                 _.each(level.content.download, function (dlc, dlc_name) {
                     if(!enviroment.content.hasOwnProperty(dlc_name)) {
                         enviroment.content[dlc_name] = load_dlc(dlc, trigger);
@@ -695,8 +692,8 @@
 
         function load_abstraction(abstraction) {
             console.log('Abstracting into ' + abstraction.type);
-            var constructor = moduleManager.get(abstraction.type);
-            return new constructor(abstraction.args);
+            var Constructor = moduleManager.get(abstraction.type);
+            return new Constructor(abstraction.args);
         }
 
         //load_step_3(callback)
@@ -718,15 +715,15 @@
 
         function load_component(component) {
             console.log('Loading component of type ' + component.type);
-            var constructor = moduleManager.get(component.type);
-            return new constructor(component.args);
+            var Constructor = moduleManager.get(component.type);
+            return new Constructor(component.args);
         }
 
         //load_node(node_name, node)
         //Carga un node, sus componentes y subnodos
 
         function load_node(node_name, node) {
-            var subnodes = {}
+            var subnodes = {};
             var components = [];
             
             if (node.components) {
