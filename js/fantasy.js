@@ -34,117 +34,153 @@
         return ref;
     }
 
+    function async_download(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener('readystatechange', function() {
+            switch(xhr.readyState) {
+                case 4:
+                    if(xhr.status == 200) {
+                        callback(null, xhr.responseText);
+                    } else {
+                        callback(xhr.status, xhr.responseText);
+                    }
+                    break;
+            }
+        });
+        xhr.open('GET', url, true);
+        xhr.send(null);
+    }
+
     //moduleManager
     //Descarga dinamicamente mediante xhr el codigo necesitado para cada modulo
     //y sus dependencias. Automáticamente evalua ese código
 
-    var moduleManager = (function () {
+    var moduleManager = (function moduleManager() {
+        var modules = {};
+        var subs = {};
 
-        var modules, subscriptions, catalog;
-        //modules - Array asociativo con cada clase evaluada
-        //catalog - Objeto parseado de catalog.json que contiene una lista de clases y sus dependencias
-        //subscriptions - Array asociativo que contiene arrays de funciones para ser llamadas cuando termine la carga de un modulo
-
-        modules = {};
-        catalog = {};
-        subscriptions = {};
-
-        var xhr = getXMLHttpRequestObject();
+        var xhr = new XMLHttpRequest();
+        
         xhr.open('GET', 'catalog.json', false);
         xhr.send(null);
-        catalog = JSON.parse(xhr.responseText);
+        var catalog = JSON.parse(xhr.responseText);
 
-        //code_evaluator(src, callback)
-        //Descarga asincronamente código desde src, lo evalue y pasa el resultado a callback
+        xhr = null;
 
-        function code_evaluator(src, callback, modulename) {
-            var xhr = getXMLHttpRequestObject();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    var resp = xhr.responseText;
-                    console.log('Loading ' + src);
-                    
-                    var pre_constructor;
-                    if(debug) {
-                        pre_constructor = eval('function ' + modulename + '(enviroment) {' + resp + '};' + modulename);
-                    } else {
-                        pre_constructor = new Function('enviroment', resp);
-                    }
+        var loaders = {
+            dummy: function(args, callback) {
+                callback(undefined);
+            },
+            component: function(args, callback) {
+                if(args && args.src) {
+                    async_download(args.src, function(err, response) {
+                        if(err) {
+                            callback(undefined);
+                        }
 
-                    callback(pre_constructor(enviroment));
+                        var pre_constructor = new Function('enviroment', response);
+                        var Constructor = pre_constructor(enviroment);
+
+                        //TODO: Add scheme
+
+                        callback(Constructor);
+                    });
+                } else {
+                    callback(undefined);
                 }
-            };
-            xhr.open('GET', src, false);
-            xhr.send(null);
-        }
+            },
+            service: function(args, callback) {
+                if(args && args.src && args.name) {
+                    async_download(args.src, function(err, response) {
+                        if(err) {
+                            callback(undefined);
+                        }
 
-        //load_into_modules(modulename)
-        //Carga el modulo de nombre modulename y llama a las funciones de subscriptions
+                        var pre_constructor = new Function('enviroment', response);
+                        var Service = pre_constructor(enviroment);
 
-        function load_into_modules(modulename) {
-            var module = catalog[modulename];
-            code_evaluator(module.src, function (result) {
-                modules[modulename] = result;
-                _.each(subscriptions[modulename], function (subscription) {
-                    subscription(result);
-                });
-            }, modulename);
-        }
+                        //TODO: Add scheme
 
-        //postload(modulename, callback)
-        //Subscribe callback para ser llama tras la carga de modulename
-        //y si callback es el primer subscriptor inicia la carga del modulo
+                        enviroment[args.name] = Service;
+                        callback(Service);
+                    });
+                } else {
+                    callback(undefined);
+                }
+            },
+            eval: function(args, callback) {
+                if(args && args.src) {
+                    async_download(args.src, function(err, response) {
+                        if(err) {
+                            callback(undefined);
+                        }
 
-        function postload(modulename, callback) {
-            if (!subscriptions.hasOwnProperty(modulename)) {
-                subscriptions[modulename] = [callback];
-                load_into_modules(modulename);
-            } else {
-                subscriptions[modulename].push(callback);
+                        var ret = eval(response);
+                        callback(ret);
+                    });
+                }
+            },
+            image: function(args, callback) {
+                if(args && args.src) {
+                    var img = new Image();
+                    img.addEventListener('load', function() {
+                        callback(img);
+                    });
+                    img.src = args.src;
+                }
             }
+        };
+
+        function load(modulename, description, callback) {
+           loaders[description.type || "dummy"](description.args, callback);
         }
 
         return {
-            //use(modulename, callback)
-            //Llama a callback pasandole como argumento el modulo de nombre modulename
-            //Si ese modulo no estuviese cargado se iniciaria su carga antes
+            use: function use(modulename, callback) {
+                callback = callback || function(){};
 
-            use: function (modulename, callback) {
-                if (modules.hasOwnProperty(modulename)) {
-                    //Si el modulo está cargado simplemente se lo pasamos a callback
+                if(!catalog[modulename]) {
+                    callback(false);
+                    return;
+                }
+
+                if(modules[modulename]) {
                     callback(modules[modulename]);
                     return;
                 }
 
-                if (!catalog.hasOwnProperty(modulename)) {
-                    //Si el modulo no se encuentra en el catalogo
-                    throw modulename + ' no se encuentra en el catalogo';
+                if(subs[modulename]) {
+                    subs[modulename].push(callback);
+                    return;
                 }
 
-                var module = catalog[modulename];
-                if (module.depends) {
-                    var deps = module.depends;
-                    var trigger = _.after(deps.length, postload.bind(this, modulename, callback));
-                    _.each(deps, function (dep) {
-                        this.use(dep, trigger);
+                subs[modulename] = [callback];
+
+                var description = catalog[modulename];
+
+                function wrapper(module) {
+                    modules[modulename] = module;
+
+                    console.log('ModuleManager:' + modulename + ' loaded');
+
+                    _.each(subs[modulename], function(sub) {
+                        sub(module);
+                    });
+                }
+
+                if(description.depends && description.depends.length > 0) {
+                    var trigger = _.after(description.depends.length, _.bind(load, this, modulename, description, wrapper));
+                    _.each(description.depends, function dependency_solve(dependency) {
+                        this.use(dependency, trigger);
                     }, this);
                 } else {
-                    postload(modulename, callback);
+                    load(modulename, description, wrapper);
                 }
             },
-            //get(modulename)
-            //Devuelve el modulo especificado o undefined si no esta cargado
-
-            get: function (modulename) {
-                if (!modules.hasOwnProperty(modulename)) {
-                    throw modulename + ' no se ha cargado';
-                }
-                return modules[modulename];
+            get: function(modulename) {
+                return (modulename in modules) ? modules[modulename] : undefined;
             },
-            //set(modulename, module)
-            //Guarda module como el modulo especificado directamente
-
-            set: function (modulename, module) {
+            set: function(modulename, module) {
                 modules[modulename] = module;
             }
         };

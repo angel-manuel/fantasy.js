@@ -1,25 +1,43 @@
 {
     "image": {
-        "src": "code/image.js"
+        "type": "component",
+        "args": {
+            "src": "code/image.js"
+        }
     },
     "matrix": {
-        "src": "code/matrix.js"
+        "type": "component",
+        "args": {
+            "src": "code/matrix.js"
+        }
     },
     "vector2": {
-        "src": "code/vector2.js"
+        "type": "component",
+        "args": {
+            "src": "code/vector2.js"
+        }
     },
     "solver": {
-        "src": "code/solver.js"
+        "type": "component",
+        "args": {
+            "src": "code/solver.js"
+        }
     },
     "script": {
-        "src": "code/script.js"
+        "type": "component",
+        "args": {
+            "src": "code/script.js"
+        }
     },
     "physics_engine_2d": {
         "depends": [
             "vector2",
             "solver"
         ],
-        "src": "code/physics_engine_2d.js"
+        "type": "component",
+        "args": {
+            "src": "code/physics_engine_2d.js"
+        }
     },
     "rigidbody_2d": {
         "depends": [
@@ -27,60 +45,99 @@
             "physics_engine_2d",
             "bounding_sphere"
         ],
-        "src": "code/rigidbody_2d.js"
+        "type": "component",
+        "args": {
+            "src": "code/rigidbody_2d.js"
+        }
     },
     "tilemap": {
         "depends": ["image"],
-        "src": "code/tilemap.js"
+        "type": "component",
+        "args": {
+            "src": "code/tilemap.js"
+        }
     },
     "animation": {
         "depends": ["tilemap"],
-        "src": "code/animation.js"
+        "type": "component",
+        "args": {
+            "src": "code/animation.js"
+        }
     },
     "animation_collection": {
         "depends": ["animation"],
-        "src": "code/animation_collection.js"
+        "type": "component",
+        "args": {
+            "src": "code/animation_collection.js"
+        }
     },
     "animator": {
         "depends": ["animation"],
-        "src": "code/animator.js"
+        "type": "component",
+        "args": {
+            "src": "code/animator.js"
+        }
     },
     "isometric_floor": {
         "depends": [
             "tilemap",
             "matrix"
         ],
-        "src": "code/isometric_floor.js"
+        "type": "component",
+        "args": {
+            "src": "code/isometric_floor.js"
+        }
     },
     "isometric_collider": {
         "depends": ["matrix"],
-        "src": "code/isometric_collider.js"
+        "type": "component",
+        "args": {
+            "src": "code/isometric_collider.js"
+        }
     },
     "isometric_player": {
         "depends": [
             "isometric_collider"
         ],
-        "src": "code/isometric_player.js"
+        "type": "component",
+        "args": {
+            "src": "code/isometric_player.js"
+        }
     },
     "drawer": {
-        "src": "code/drawer.js"
+        "type": "component",
+        "args": {
+            "src": "code/drawer.js"
+        }
     },
     "polygon_drawer": {
-        "src": "code/polygon_drawer.js"    
+        "type": "component",
+        "args": {
+            "src": "code/polygon_drawer.js"
+        }  
     },
     "box_drawer": {
         "depends": ["polygon_drawer"],
-        "src": "code/box_drawer.js"
+        "type": "component",
+        "args": {
+            "src": "code/box_drawer.js"
+        }
     },
     "collision_system_2d": {
         "depends": [
             "vector2",
             "bounding_sphere"
         ],
-        "src": "code/collision_system_2d.js"    
+        "type": "component",
+        "args": {
+            "src": "code/collision_system_2d.js"   
+        } 
     },
     "bounding_sphere": {
-        "src": "code/bounding_sphere.js"
+        "type": "component",
+        "args": {
+            "src": "code/bounding_sphere.js"
+        }
     },
     "polygon_collider": {
         "depends": [
@@ -88,50 +145,83 @@
             "vector2",
             "bounding_sphere"
         ],
-        "src": "code/polygon_collider.js"
+        "type": "component",
+        "args": {
+            "src": "code/polygon_collider.js"
+        }
     },
     "polygon": {
         "depends": [
             "polygon_collider",
             "rigidbody_2d"
         ],
-        "src": "code/polygon.js"
+        "type": "component",
+        "args": {
+            "src": "code/polygon.js"
+        }
     },
     "box": {
         "depends": ["polygon"],
-        "src": "code/box.js"
+        "type": "component",
+        "args": {
+            "src": "code/box.js"
+        }
     },
     "box_collider": {
         "depends": [
             "polygon_collider"
         ],
-        "src": "code/box_collider.js"
+        "type": "component",
+        "args": {
+            "src": "code/box_collider.js"
+        }
     },
     "map": {
         "depends": [
             "image",
             "tilemap"
         ],
-        "src": "code/map.js"
+        "type": "component",
+        "args": {
+            "src": "code/map.js"
+        }
     },
     "dummy_drawer": {
-        "src": "code/dummy_drawer.js"
+        "type": "component",
+        "args": {
+            "src": "code/dummy_drawer.js"
+        }
     },
     "aabb": {
-        "src": "code/aabb.js"
+        "type": "component",
+        "args": {
+            "src": "code/aabb.js"
+        }
     },
     "orthografic_camera": {
         "depends": ["aabb"],
-        "src": "code/orthografic_camera.js"
+        "type": "component",
+        "args": {
+            "src": "code/orthografic_camera.js"
+        }
     },
     "perspective_camera": {
         "depends": ["aabb"],
-        "src": "code/perspective_camera.js"
+        "type": "component",
+        "args": {
+            "src": "code/perspective_camera.js"
+        }
     },
     "prefab": {
-        "src": "code/prefab.js"
+        "type": "component",
+        "args": {
+            "src": "code/prefab.js"
+        }
     },
     "prefab_binder": {
-        "src": "code/prefab_binder.js"
+        "type": "component",
+        "args": {
+            "src": "code/prefab_binder.js"
+        }
     }
 }
