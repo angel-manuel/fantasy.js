@@ -541,8 +541,8 @@
             }, this);
         },
         translate: function (x, y, z) {
-            this.local_transform.x += x;
-            this.local_transform.y += y;
+            this.local_transform.x += x || 0;
+            this.local_transform.y += y || 0;
             this.local_transform.z += z || 0;
 
             this.rebuildTransform();
