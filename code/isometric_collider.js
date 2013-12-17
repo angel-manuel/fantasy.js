@@ -56,7 +56,7 @@ var isometric_collider = Component.extend({
         this._super(gameobject);
     },
     collisionAtMap: function (x, y) {
-        if(x < 0 || x > this.matrix.width || y < 0 || y > this.matrix.height) {
+        if(!(x >= 0 || x < this.matrix.width || y >= 0 || y < this.matrix.height)) {
             return true;
         }
 
@@ -133,6 +133,10 @@ var isometric_collider = Component.extend({
                     best_open_list = index;
                 }
             });
+
+            if(best_open_list === -1) {
+                return false;
+            }
 
             pos = openlist[best_open_list];
             delete openlist[best_open_list];
