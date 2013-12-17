@@ -1,30 +1,30 @@
 {
     "image": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/image.js"
         }
     },
     "matrix": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/matrix.js"
         }
     },
     "vector2": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/vector2.js"
         }
     },
     "solver": {
-        "type": "component",
+        "type": "enviroment",
         "args": {
             "src": "code/solver.js"
         }
     },
     "script": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/script.js"
         }
@@ -34,7 +34,7 @@
             "vector2",
             "solver"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/physics_engine_2d.js"
         }
@@ -45,35 +45,35 @@
             "physics_engine_2d",
             "bounding_sphere"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/rigidbody_2d.js"
         }
     },
     "tilemap": {
         "depends": ["image"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/tilemap.js"
         }
     },
     "animation": {
         "depends": ["tilemap"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/animation.js"
         }
     },
     "animation_collection": {
         "depends": ["animation"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/animation_collection.js"
         }
     },
     "animator": {
         "depends": ["animation"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/animator.js"
         }
@@ -83,14 +83,14 @@
             "tilemap",
             "matrix"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/isometric_floor.js"
         }
     },
     "isometric_collider": {
         "depends": ["matrix"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/isometric_collider.js"
         }
@@ -99,26 +99,26 @@
         "depends": [
             "isometric_collider"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/isometric_player.js"
         }
     },
     "drawer": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/drawer.js"
         }
     },
     "polygon_drawer": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/polygon_drawer.js"
         }  
     },
     "box_drawer": {
         "depends": ["polygon_drawer"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/box_drawer.js"
         }
@@ -128,13 +128,13 @@
             "vector2",
             "bounding_sphere"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/collision_system_2d.js"   
         } 
     },
     "bounding_sphere": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/bounding_sphere.js"
         }
@@ -145,7 +145,7 @@
             "vector2",
             "bounding_sphere"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/polygon_collider.js"
         }
@@ -155,14 +155,14 @@
             "polygon_collider",
             "rigidbody_2d"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/polygon.js"
         }
     },
     "box": {
         "depends": ["polygon"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/box.js"
         }
@@ -171,7 +171,7 @@
         "depends": [
             "polygon_collider"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/box_collider.js"
         }
@@ -181,45 +181,45 @@
             "image",
             "tilemap"
         ],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/map.js"
         }
     },
     "dummy_drawer": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/dummy_drawer.js"
         }
     },
     "aabb": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/aabb.js"
         }
     },
     "orthografic_camera": {
         "depends": ["aabb"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/orthografic_camera.js"
         }
     },
     "perspective_camera": {
         "depends": ["aabb"],
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/perspective_camera.js"
         }
     },
     "prefab": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/prefab.js"
         }
     },
     "prefab_binder": {
-        "type": "component",
+        "type": "module",
         "args": {
             "src": "code/prefab_binder.js"
         }

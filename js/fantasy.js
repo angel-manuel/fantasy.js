@@ -71,7 +71,7 @@
             dummy: function(args, callback) {
                 callback(undefined);
             },
-            component: function(args, callback) {
+            module: function(args, callback) {
                 if(args && args.src) {
                     async_download(args.src, function(err, response) {
                         if(err) {
@@ -89,7 +89,7 @@
                     callback(undefined);
                 }
             },
-            service: function(args, callback) {
+            enviroment: function(args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function(err, response) {
                         if(err) {
@@ -438,7 +438,7 @@
         //Añade un componente
         addComponent: function (component) {
             if(!this.enabled)
-                return false;
+                throw 'Este nodo no esta inicializado';
 
             if(component instanceof Component) {
                 component.prepare(this);
@@ -459,27 +459,32 @@
             if(this.components[ref - 1]) {
                 this.components[ref - 1].destroy();
                 return delete this.components[ref - 1];
+            } else {
+                throw 'ref no es una referencia valida';
             }
-            return false;
         },
         //appendChild(subnode)
         //subnode - Instancia de Node
         //Añade un subnodo
         appendChild: function (subnode) {
-            subnode.setUpTransform(this.transform);
-            subnode.parent = this;
-            this.subnodes[subnode.node_name] = subnode;
+            if(subnode instanceof Node) {
+                subnode.setUpTransform(this.transform);
+                subnode.parent = this;
+                this.subnodes[subnode.node_name] = subnode;
+            } else {
+                throw 'subnode no es una instancia de Node';
+            }
         },
         //deleteChild(node_name)
-        //Borra el subnode de nombre nodenmae
+        //Borra el subnode de nombre node_name
         deleteChild: function (node_name) {
             if(this.subnodes[node_name]) {
                 var subnode = this.subnodes[node_name];
                 delete this.subnodes[node_name];
                 subnode.destroy();
-                return true;
+            } else {
+                throw 'node_name no alude a ningun subnodo';
             }
-            return false;
         },
         //destroy()
         //Destruye este nodo y sus subnodos
@@ -794,12 +799,6 @@
     //Ajusta el tamaño del canvas al de la pantalla
 
     function resize_canvas() {
-        document.body.style.scroll = 'none';
-        document.body.style.overflow = 'hidden';
-        document.body.style.margin= '0px';
-        document.body.style.padding = '0px';
-        canvas.style.margin = '0px';
-        canvas.style.padding = '0px';
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
@@ -918,6 +917,12 @@
         if (fullscreen) {
             //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
         } else {
+            document.body.style.scroll = 'none';
+            document.body.style.overflow = 'hidden';
+            document.body.style.margin= '0px';
+            document.body.style.padding = '0px';
+            canvas.style.margin = '0px';
+            canvas.style.padding = '0px';
             resize_canvas();
             window.addEventListener('resize', resize_canvas);
         }
