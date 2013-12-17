@@ -30,7 +30,9 @@
     },
     "tree": {
         "map": {
-            "x": 500,
+            "transform": {
+                "x": 500
+            },
             "components": [
                 {
                     "type": "isometric_collider",
@@ -49,7 +51,9 @@
             ],
             "subnodes": {
                 "player": {
-                    "z": -1,
+                    "transform": {
+                        "z": -1
+                    },
                     "components": [
                         {
                             "type": "isometric_player",

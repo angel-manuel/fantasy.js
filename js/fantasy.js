@@ -191,14 +191,15 @@
     //TODO: Representar transformaciones no espaciales: opacidad, filtros de color y cualquier caso que soporte canvas
 
     var Transform = Class.extend({
-        init: function (x, y, z, rotation, scale_x, scale_y, scale_z) {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
-            this.rotation = rotation || 0;
-            this.scale_x = scale_x || 1;
-            this.scale_y = scale_y || 1;
-            this.scale_z = scale_z || 1;
+        init: function (args) {
+            args = args || {};
+            this.x = args.x || 0;
+            this.y = args.y || 0;
+            this.z = args.z || 0;
+            this.rotation = args.rotation || 0;
+            this.scale_x = args.scale_x || args.scale || 1;
+            this.scale_y = args.scale_y || args.scale || 1;
+            this.scale_z = args.scale_z || args.scale || 1;
         },
         apply: function () {
             enviroment.context.translate(this.x, this.y);
@@ -281,15 +282,15 @@
         x += A.x;
         y += A.y;
 
-        return new Transform(
-            x,
-            y,
-            B.z*A.scale_z + A.z,
-            B.rotation + A.rotation,
-            B.scale_x * A.scale_x,
-            B.scale_y * A.scale_y,
-            B.scale_z * A.scale_z
-        );
+        return new Transform({
+            x: x,
+            y: y,
+            z: B.z*A.scale_z + A.z,
+            rotation: B.rotation + A.rotation,
+            scale_x: B.scale_x * A.scale_x,
+            scale_y: B.scale_y * A.scale_y,
+            scale_z: B.scale_z * A.scale_z
+        });
     };
 
     //Content(src, onload)
@@ -778,7 +779,7 @@
                     subnodes[subnode_name] = load_node(subnode_name, subnode);
                 });
             }
-            var realnode = new Node(node_name, node.enabled, components, node.layer, new Transform(node.x, node.y, node.z, node.rotation, node.scale_x || node.scale, node.scale_y || node.scale, node.scale_z || node.scale), subnodes);
+            var realnode = new Node(node_name, node.enabled, components, node.layer, new Transform(node.transform), subnodes);
             return realnode;
         }
 
