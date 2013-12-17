@@ -166,17 +166,18 @@ var isometric_collider = Component.extend({
             [Path.South, x, y + 1, 1],
             [Path.SouthEast, x + 1, y + 1, sq_2]
             ], function (n) {
-                nx = n[1];
-                ny = n[2];
-                cost = n[3];
-                npos = nx+ny*w;
+                var dir = n[0];
+                var nx = n[1];
+                var ny = n[2];
+                var cost = n[3];
+                var npos = nx+ny*w;
                 if(npos >= 0 && !(nx < 0 || nx > w || ny < 0 || ny > h) && !this.collisionAtMap(nx, ny)) {
                     if(map[npos]) {
                         if(!map[npos].closed) {
                             if(map[npos].G > G + cost) {
                                 map[npos].G = G + cost;
                                 map[npos].parent = pos;
-                                map[npos].dir = n[0];
+                                map[npos].dir = dir;
                             }
                         }
                     } else {
@@ -184,7 +185,7 @@ var isometric_collider = Component.extend({
                             G: G + cost,
                             H: Math.sqrt((tx-nx)*(tx-nx)+(ty-ny)*(ty-ny)),
                             parent: pos,
-                            dir: n[0]
+                            dir: dir
                         };
                         openlist.push(npos);
                     }

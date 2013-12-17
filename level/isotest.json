@@ -48,7 +48,9 @@
     },
     "tree": {
         "map": {
-            "x": 500,
+            "transform": {
+                "x": 500
+            },
             "components": [
                 {
                     "type": "isometric_collider",

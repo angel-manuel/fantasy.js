@@ -70,6 +70,7 @@ var map = Content.extend({
             enviroment.context = ctx;
             
             ctx.save();
+            ctx.translate(this.tile_width/2, this.tile_height/2);
             ctx.translate(pixel_width/2 - this.tile_width/2, 0);
             for(var dy = 0; dy < layer.height; ++dy) {
                 ctx.save();
@@ -96,8 +97,8 @@ var map = Content.extend({
         
         var ctx = this.predraw.getContext('2d');
 
-        ctx.translate(this.pixel_width/2, 0);
         ctx.save();
+        ctx.translate(this.pixel_width/2, 0);
         ctx.translate(0, this.tile_height/4 * (_.keys(this.map.layers).length - 1));
         _.each(this.map.layers, function (layer, layer_name) {
             var tilemap = this.tilemaps[layer.tilemap];

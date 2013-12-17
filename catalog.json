@@ -20,7 +20,8 @@
     "solver": {
         "type": "enviroment",
         "args": {
-            "src": "code/solver.js"
+            "src": "code/solver.js",
+            "name": "solver"
         }
     },
     "script": {
