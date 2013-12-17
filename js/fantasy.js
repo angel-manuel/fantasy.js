@@ -553,8 +553,8 @@
             this.rebuildTransform();
         },
         moveTo: function (x, y, z) {
-            var rx = x - this.transform.x,
-                ry = y - this.transform.y,
+            var rx = x - this.transform.x || 0,
+                ry = y - this.transform.y || 0,
                 rz = z - this.transform.z || 0;
             
             this.translate(rx, ry, rz);
