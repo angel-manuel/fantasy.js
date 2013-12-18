@@ -472,6 +472,7 @@
                 subnode.setUpTransform(this.transform);
                 subnode.parent = this;
                 this.subnodes[subnode.node_name] = subnode;
+                subnode.rebuildTransform();
             } else {
                 throw 'subnode no es una instancia de Node';
             }
