@@ -108,6 +108,25 @@
                     callback(undefined);
                 }
             },
+            loader: function(args, callback) {
+                if(args && args.src && args.name) {
+                    async_download(args.src, function(err, response) {
+                        if(err) {
+                            callback(undefined);
+                        }
+
+                        var pre_constructor = new Function('enviroment', response);
+                        var Service = pre_constructor(enviroment);
+
+                        //TODO: Add scheme
+
+                        enviroment[args.name] = Service;
+                        callback(Service);
+                    });
+                } else {
+                    callback(undefined);
+                }
+            },
             eval: function(args, callback) {
                 if(args && args.src) {
                     async_download(args.src, function(err, response) {
@@ -131,6 +150,11 @@
             }
         };
 
+        //Copying loaders to modules
+        _.each(_.keys(loaders), function(loadername) {
+            modules[loadername] = loaders[loadername];
+        });
+
         function load(modulename, description, callback) {
            loaders[description.type || "dummy"](description.args, callback);
         }
@@ -139,14 +163,27 @@
             use: function use(modulename, callback) {
                 callback = callback || function(){};
 
-                if(!catalog[modulename]) {
-                    callback(false);
-                    return;
-                }
+                var description;
 
-                if(modules[modulename]) {
-                    callback(modules[modulename]);
-                    return;
+                switch(typeof modulename) {
+                    case 'string':
+                        if(!catalog[modulename]) {
+                            callback(false);
+                            return;
+                        }
+
+                        if(modules[modulename]) {
+                            callback(modules[modulename]);
+                            return;
+                        }
+
+                        description = catalog[modulename];
+
+                        break;
+                    case 'object':
+                        description = modulename;
+                        modulename = modulename.name;
+                        break;
                 }
 
                 if(subs[modulename]) {
@@ -155,8 +192,6 @@
                 }
 
                 subs[modulename] = [callback];
-
-                var description = catalog[modulename];
 
                 function wrapper(module) {
                     modules[modulename] = module;
@@ -185,6 +220,18 @@
             }
         };
     })();
+
+    //TEST
+    moduleManager.use({
+        name: "test2",
+        type: "image",
+        args: {
+            src: "content/test2.png"
+        }
+    }, function(img) {
+        console.log('OK!!');
+    })
+    //END TEST
 
     //Transform(x, y, rotation)
     //Representa una transformación en el espacio y cada Node tiene una instancia de esta clase
