@@ -17,8 +17,18 @@ var map = Content.extend({
         this.width = this.map.width;
         this.height = this.map.height;
 
-        this.pixel_width = (this.width + this.height + 1) * this.tile_width/2;
-        this.pixel_height = (this.width + this.height + 1 + Object.keys(this.map.layers).length) * this.tile_height/4;
+        this.style = this.map.style || "plain";
+
+        switch(this.style) {
+            case 'plain':
+                this.pixel_width = this.width*this.tile_width;
+                this.pixel_height = this.height*this.tile_height;
+                break;
+            case 'isometric':
+                this.pixel_width = (this.width + this.height + 1) * this.tile_width/2;
+                this.pixel_height = (this.width + this.height + 1 + Object.keys(this.map.layers).length) * this.tile_height/4;
+                break;
+        }
 
         this.images = {};
         this.tilemaps = {};
@@ -52,72 +62,150 @@ var map = Content.extend({
         this.predraw();
     },
     predraw: function () {
-        _.each(this.map.layers, function (layer, layer_name) {
-            var tilemap = this.tilemaps[layer.tilemap];
+        var dx, dy;
 
-            var pixel_width = (layer.width + layer.height)*this.tile_width/2;
-            var pixel_height = (layer.width + layer.height)*this.tile_height/4;
+        switch(this.style) {
+            case 'plain':
+                dx = this.tile_width;
+                dy = this.tile_height;
+                break;
+            case 'isometric':
+                dx = this.tile_width/2;
+                dy = this.tile_height/4;
+                break;
+        }
 
-            layer.pixel_width = pixel_width;
-            layer.pixel_height = pixel_height;
+        switch(this.style) {
+            case 'plain':
+                _.each(this.map.layers, function(layer, layer_name) {
+                    var tilemap = this.tilemaps[layer.tilemap];
 
-            var hiddencanvas = document.createElement('canvas');
-            hiddencanvas.setAttribute('width', pixel_width);
-            hiddencanvas.setAttribute('height', pixel_height + this.tile_height/2);
+                    var pixel_width = layer.width*dx;
+                    var pixel_height = layer.height*dy;
 
-            var old_ctx = enviroment.context;
-            var ctx = hiddencanvas.getContext('2d');
-            enviroment.context = ctx;
-            
-            ctx.save();
-            ctx.translate(this.tile_width/2, this.tile_height/2);
-            ctx.translate(pixel_width/2 - this.tile_width/2, 0);
-            for(var dy = 0; dy < layer.height; ++dy) {
+                    layer.pixel_width = pixel_width;
+                    layer.pixel_height = pixel_height;
+
+                    var hiddencanvas = document.createElement('canvas');
+                    hiddencanvas.setAttribute('width', pixel_width);
+                    hiddencanvas.setAttribute('height', pixel_height);
+
+                    var old_ctx = enviroment.context;
+                    var ctx = hiddencanvas.getContext('2d');
+                    enviroment.context = ctx;
+
+                    ctx.save();
+                    ctx.translate(-this.tile_width/2, -this.tile_height/2);
+                    for(var y = 0; y < layer.height; ++y) {
+                        ctx.save();
+                        for(var x = 0; x < layer.width; ++x) {
+                            var tile = layer.data[x+y*layer.width];
+                            tilemap.draw(tile);
+                            ctx.translate(dx, 0);
+                        }
+                        ctx.restore();
+                        ctx.translate(0, dy);
+                    }
+                    ctx.restore();
+
+                    enviroment.context = old_ctx;
+
+                    this.preimages[layer_name] = hiddencanvas;
+                }, this);
+
+                this.predraw = document.createElement('canvas');
+                this.predraw.setAttribute('width', this.pixel_width);
+                this.predraw.setAttribute('height', this.pixel_height);
+                
+                var ctx = this.predraw.getContext('2d');
+
                 ctx.save();
-                for(var dx = 0; dx < layer.width; ++dx) {
-                    var tile = layer.data[dx+dy*layer.width];
-                    tilemap.draw(tile);
-                    ctx.translate(this.tile_width/2, this.tile_height/4);
-                }
+                _.each(this.map.layers, function (layer, layer_name) {
+                    var tilemap = this.tilemaps[layer.tilemap];
+                    var layer_image = this.preimages[layer_name];
+                    
+                    ctx.save();
+                    ctx.globalAlpha = layer.opacity;
+                    ctx.translate(layer.x*dx, layer.y*dy);
+                    ctx.drawImage(layer_image, 0, 0);
+                    ctx.restore();
+                }, this);
                 ctx.restore();
-                ctx.translate(-this.tile_width/2, this.tile_height/4);
-            }
-            ctx.restore();
+                
+                break;
+            case 'isometric':
+                _.each(this.map.layers, function (layer, layer_name) {
+                    var tilemap = this.tilemaps[layer.tilemap];
 
-            enviroment.context = old_ctx;
+                    var pixel_width = (layer.width + layer.height)*dx;
+                    var pixel_height = (layer.width + layer.height + 1)*dy;
 
-            var debug = new Image();
-            debug.src = hiddencanvas.toDataURL();
-            this.preimages[layer_name] = hiddencanvas;
-        }, this);
+                    layer.pixel_width = pixel_width;
+                    layer.pixel_height = pixel_height;
 
-        this.predraw = document.createElement('canvas');
-        this.predraw.setAttribute('width', this.pixel_width);
-        this.predraw.setAttribute('height', this.pixel_height);
-        
-        var ctx = this.predraw.getContext('2d');
+                    var hiddencanvas = document.createElement('canvas');
+                    hiddencanvas.setAttribute('width', pixel_width);
+                    hiddencanvas.setAttribute('height', pixel_height);
 
-        ctx.save();
-        ctx.translate(this.pixel_width/2, 0);
-        ctx.translate(0, this.tile_height/4 * (_.keys(this.map.layers).length - 1));
-        _.each(this.map.layers, function (layer, layer_name) {
-            var tilemap = this.tilemaps[layer.tilemap];
-            var layer_image = this.preimages[layer_name];
-            
-            ctx.save();
-            ctx.globalAlpha = layer.opacity;
-            ctx.translate((layer.x - layer.y - 0.5)*this.tile_width/2 - layer.pixel_width/2, (layer.x + layer.y)*this.tile_height/4);
-            ctx.drawImage(layer_image, 0, 0);
-            ctx.restore();
-            ctx.translate(0, -this.tile_height/4);
-        }, this);
-        ctx.restore();
+                    var old_ctx = enviroment.context;
+                    var ctx = hiddencanvas.getContext('2d');
+                    enviroment.context = ctx;
+
+                    ctx.save();
+                    ctx.translate(pixel_width/2 - dx, 1.5*dy);
+                    for(var y = 0; y < layer.height; ++y) {
+                        ctx.save();
+                        for(var x = 0; x < layer.width; ++x) {
+                            var tile = layer.data[x+y*layer.width];
+                            tilemap.draw(tile);
+                            ctx.translate(dx, dy);
+                        }
+                        ctx.restore();
+                        ctx.translate(-dx, dy);
+                    }
+                    ctx.restore();
+
+                    enviroment.context = old_ctx;
+
+                    this.preimages[layer_name] = hiddencanvas;
+                }, this);
+
+                this.predraw = document.createElement('canvas');
+                this.predraw.setAttribute('width', this.pixel_width);
+                this.predraw.setAttribute('height', this.pixel_height);
+                
+                var ctx = this.predraw.getContext('2d');
+
+                ctx.save();
+                ctx.translate(dx, dy * (_.keys(this.map.layers).length - 1));
+                _.each(this.map.layers, function (layer, layer_name) {
+                    var tilemap = this.tilemaps[layer.tilemap];
+                    var layer_image = this.preimages[layer_name];
+                    
+                    ctx.save();
+                    ctx.globalAlpha = layer.opacity;
+                    ctx.translate((layer.x - layer.y - 0.5)*dx, (layer.x + layer.y)*dy);
+                    ctx.drawImage(layer_image, 0, 0);
+                    ctx.restore();
+                    ctx.translate(0, -dy);
+                }, this);
+                ctx.restore();
+
+                break;
+        }
 
         this.load();
     },
     draw: function () {
         if(this.predraw) {
-            enviroment.context.drawImage(this.predraw, -this.predraw.width/2 + this.tile_width/2, 0);
+            switch(this.style) {
+                case 'plain':
+                    enviroment.context.drawImage(this.predraw, 0, 0);
+                    break;
+                case 'isometric':
+                    enviroment.context.drawImage(this.predraw, -this.predraw.width/2 + this.tile_width/2, 0);
+                    break;
+            }
         }
     }
 });

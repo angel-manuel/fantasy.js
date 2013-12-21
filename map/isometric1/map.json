@@ -1,4 +1,5 @@
 {
+    "style": "isometric",
     "width": 32,
     "height": 32,
     "tile_width": 64,

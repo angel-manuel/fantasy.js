@@ -76,6 +76,7 @@ var isometric_player = Component.extend({
     draw: function () {
         enviroment.context.save();
         enviroment.context.translate(this.collider.tile_width/4, this.collider.tile_height/4);
+        enviroment.context.translate(-this.animations_collection.tile_width/2, -this.animations_collection.tile_height/2);
         switch (this.state) {
             case PlayerState.Walking:
                 var animation_time = (this.walking_time + this.walking_initial_time) % this.walking_speed;
