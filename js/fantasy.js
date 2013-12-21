@@ -186,17 +186,21 @@
             callback = callback || function(){};
 
             if(typeof args === 'object' && Array.isArray(args)) {
-                var left = args.length;
-                var rets = [];
+                if(args.length > 0) {
+                    var left = args.length;
+                    var rets = [];
 
-                _.each(args, function(args) {
-                    use(args, function wrapper(ret) {
-                        rets.push(ret);
-                        if(!--left) {
-                            callback(rets);
-                        }
+                    _.each(args, function(args) {
+                        use(args, function wrapper(ret) {
+                            rets.push(ret);
+                            if(!--left) {
+                                callback(rets);
+                            }
+                        });
                     });
-                });
+                } else {
+                    callback(true);
+                }
                 return;
             }
 
@@ -769,11 +773,7 @@
             }
             deps = deps.concat(find_implicit_deps());
 
-            if(deps.length > 0) {
-                moduleManager.use(deps, load_step_2.bind(null, callback));
-            } else {
-                load_step_2(callback);
-            }
+            moduleManager.use(deps, load_step_2.bind(null, callback));
         }
         //load_step_2(callback)
         //Carga el contenido descargable
