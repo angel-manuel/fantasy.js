@@ -378,16 +378,6 @@
         });
     };
 
-    //Abstractor(args)
-    //Clase base para todos los abstractores
-
-    var Abstractor = Class.extend({
-        init: function (args) {
-            this.args = args;
-        }
-    });
-    moduleManager.set('abstractor', Abstractor);
-
     //Component(enviroment, args)
     //Clase base para todos los componentes
 
@@ -721,14 +711,6 @@
 
         function find_implicit_deps() {
             var deps = [];
-            
-            if(level.content) {
-                if(level.content.abstraction) {
-                    _.each(level.content.abstraction, function (abstraction) {
-                        deps.push(abstraction.type);
-                    });
-                }
-            }
 
             if(level.components) {
                 _.each(level.components, function (component) {
@@ -782,29 +764,6 @@
             }
         }
 
-        //load_abstraction(abstraction)
-        //Carga y devuelve una abstración
-
-        function load_abstraction(abstraction) {
-            console.log('Abstracting into ' + abstraction.type);
-            var Constructor = moduleManager.get(abstraction.type);
-            return new Constructor(abstraction.args);
-        }
-
-        //load_step_3(callback)
-        //Carga las diversas abstraciones del contenido descargable
-
-        function load_step_3(callback) {
-            if (level.content && level.content.abstraction) {
-                _.each(level.content.abstraction, function (abstraction, abstraction_name) {
-                    if(!enviroment.content.hasOwnProperty(abstraction_name)) {
-                        enviroment.content[abstraction_name] = load_abstraction(abstraction);
-                    }
-                });
-            }
-            load_step_4(callback);
-        }
-
         //load_component(component)
         //Carga un componente
 
@@ -836,10 +795,10 @@
             return realnode;
         }
 
-        //load_step_4(callback)
+        //load_step_3(callback)
         //Carga el arbol de la escena y llama a callback
 
-        function load_step_4(callback) {
+        function load_step_3(callback) {
             root = load_node(name, level);
             callback(root);
         }
