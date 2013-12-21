@@ -116,12 +116,27 @@
                         }
 
                         var pre_constructor = new Function('enviroment', response);
-                        var Service = pre_constructor(enviroment);
+                        var Loader = pre_constructor(enviroment);
 
                         //TODO: Add scheme
 
-                        enviroment[args.name] = Service;
+                        loaders[args.name] = Loader;
                         callback(Service);
+                    });
+                } else {
+                    callback(undefined);
+                }
+            },
+            content: function(args, callback) {
+                if(args && args.obj) {
+                    if(args.name) {
+                        args.obj.name = args.name;
+                    }
+                    use(args.obj, function(obj) {
+                        if(args.name) {
+                            enviroment.content[args.name] = obj;
+                        }
+                        callback(obj);
                     });
                 } else {
                     callback(undefined);
@@ -137,15 +152,8 @@
                         var ret = eval(response);
                         callback(ret);
                     });
-                }
-            },
-            image: function(args, callback) {
-                if(args && args.src) {
-                    var img = new Image();
-                    img.addEventListener('load', function() {
-                        callback(img);
-                    });
-                    img.src = args.src;
+                } else {
+                    callback(undefined);
                 }
             }
         };
@@ -156,82 +164,95 @@
         });
 
         function load(modulename, description, callback) {
-           loaders[description.type || "dummy"](description.args, callback);
+            var loader = loaders[description.type || "dummy"];
+            if(loader) {
+                loader(description.args, callback);
+            } else {
+                use(description.type, function(loader) {
+                    loader(description.args, callback);
+                });
+            }
+        }
+
+        function get_random_name() {
+            var name = "random_" + Math.floor(Math.random()*100000);
+            while(subs[name] || modules[name]) {
+                name = "random_" + Math.floor(Math.random()*100000);
+            }
+            return name;
+        }
+
+        function use(args, callback) {
+            callback = callback || function(){};
+
+            var description;
+            var modulename;
+
+            switch(typeof args) {
+                case 'string':
+                    modulename = args;
+                    if(!catalog[modulename]) {
+                        callback(false);
+                        return;
+                    }
+
+                    if(modules[modulename]) {
+                        callback(modules[modulename]);
+                        return;
+                    }
+
+                    description = catalog[modulename];
+
+                    break;
+                case 'object':
+                    description = args;
+                    modulename = args.name || get_random_name();
+                    break;
+            }
+
+            if(subs[modulename]) {
+                subs[modulename].push(callback);
+                return;
+            }
+
+            subs[modulename] = [callback];
+
+            function wrapper(module) {
+                modules[modulename] = module;
+
+                console.log('ModuleManager:' + modulename + ' loaded');
+
+                _.each(subs[modulename], function(sub) {
+                    sub(module);
+                });
+            }
+
+            if(description.depends && description.depends.length > 0) {
+                var trigger = _.after(description.depends.length, _.bind(load, undefined, modulename, description, wrapper));
+                _.each(description.depends, function dependency_solve(dependency) {
+                    use(dependency, trigger);
+                });
+            } else {
+                load(modulename, description, wrapper);
+            }
+
+            return get(modulename);
+        }
+
+        function get(modulename) {
+            return (modulename in modules) ? modules[modulename] : undefined;
+        }
+
+        function set(modulename, module) {
+            modules[modulename] = module;
         }
 
         return {
-            use: function use(modulename, callback) {
-                callback = callback || function(){};
-
-                var description;
-
-                switch(typeof modulename) {
-                    case 'string':
-                        if(!catalog[modulename]) {
-                            callback(false);
-                            return;
-                        }
-
-                        if(modules[modulename]) {
-                            callback(modules[modulename]);
-                            return;
-                        }
-
-                        description = catalog[modulename];
-
-                        break;
-                    case 'object':
-                        description = modulename;
-                        modulename = modulename.name;
-                        break;
-                }
-
-                if(subs[modulename]) {
-                    subs[modulename].push(callback);
-                    return;
-                }
-
-                subs[modulename] = [callback];
-
-                function wrapper(module) {
-                    modules[modulename] = module;
-
-                    console.log('ModuleManager:' + modulename + ' loaded');
-
-                    _.each(subs[modulename], function(sub) {
-                        sub(module);
-                    });
-                }
-
-                if(description.depends && description.depends.length > 0) {
-                    var trigger = _.after(description.depends.length, _.bind(load, this, modulename, description, wrapper));
-                    _.each(description.depends, function dependency_solve(dependency) {
-                        this.use(dependency, trigger);
-                    }, this);
-                } else {
-                    load(modulename, description, wrapper);
-                }
-            },
-            get: function(modulename) {
-                return (modulename in modules) ? modules[modulename] : undefined;
-            },
-            set: function(modulename, module) {
-                modules[modulename] = module;
-            }
+            use: use,
+            get: get,
+            set: set
         };
     })();
-
-    //TEST
-    moduleManager.use({
-        name: "test2",
-        type: "image",
-        args: {
-            src: "content/test2.png"
-        }
-    }, function(img) {
-        console.log('OK!!');
-    })
-    //END TEST
 
     //Transform(x, y, rotation)
     //Representa una transformación en el espacio y cada Node tiene una instancia de esta clase
@@ -344,15 +365,15 @@
     //Clase base para todo dlc
 
     var Content = Class.extend({
-        init: function (src, onload) {
+        init: function (args, onload) {
             this.loaded = false;
-            this.src = src;
+            this.args = args;
             this.onload = onload;
         },
         load: function () {
             this.loaded = true;
             if(this.onload) {
-                this.onload();
+                this.onload(this);
             }
         }
     });
@@ -753,9 +774,9 @@
         //Carga y devuelve un contenido descargarble y llama a callback
 
         function load_dlc(dlc, callback) {
-            console.log('Loading ' + dlc.type + ' from ' + dlc.src);
+            console.log('Loading ' + dlc.type + ' from ' + dlc.args.src);
             var Constructor = moduleManager.get(dlc.type);
-            return new Constructor(dlc.src, callback);
+            return new Constructor(dlc.args, callback);
         }
 
         //load_step_2(callback)
@@ -766,8 +787,14 @@
                 var dlc_names = Object.keys(level.content.download);
                 var trigger = _.after(dlc_names.length, load_step_3.bind(null, callback));
                 _.each(level.content.download, function (dlc, dlc_name) {
-                    if(!enviroment.content.hasOwnProperty(dlc_name)) {
-                        enviroment.content[dlc_name] = load_dlc(dlc, trigger);
+                    if(!enviroment.content[dlc_name]) {
+                        moduleManager.use({
+                            type: 'content',
+                            args: {
+                                name: dlc_name,
+                                obj: dlc
+                            }
+                        }, trigger);
                     } else {
                         trigger();
                     }

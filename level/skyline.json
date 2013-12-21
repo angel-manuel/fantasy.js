@@ -1,14 +1,31 @@
 {
 	"content": {
 		"download": {
-			"skyline": {"type": "image", "src": "content/skyline.png"},
-			"skyline_2": {"type": "image", "src": "content/skyline_2.png"},
-			"skyline_3": {"type": "image", "src": "content/skyline_3.png"}
+			"skyline": {
+				"type": "image",
+				"args": {
+					"src": "content/skyline.png"
+				}
+			},
+			"skyline_2": {
+				"type": "image",
+				"args": {
+					"src": "content/skyline_2.png"
+				}
+			},
+			"skyline_3": {
+				"type": "image",
+				"args": {
+					"src": "content/skyline_3.png"
+				}
+			}
 		}
 	},
 	"tree": {
 		"camera": {
-			"z": -1,
+			"transform": {
+				"z": -1
+			},
 			"components": [
 				{
 					"type": "perspective_camera",
@@ -20,14 +37,16 @@
 				{
 					"type": "script",
 					"args": {
-						"update": "this.gameobject.translate(event*20, -event*10);"
+						"update": "this.gameobject.translate(event*20, -event*10, -event*0.05);"
 					}
 				}
 			]
 		},
 		"skyline_1": {
-			"z": 2,
-			"x": 20,
+			"transform": {
+				"z": 2,
+				"x": 20
+			},
 			"components": [
 				{
 					"type": "drawer",
@@ -39,7 +58,9 @@
 			]
 		},
 		"skyline_2": {
-			"x": 75,
+			"transform": {
+				"x": 75
+			},
 			"components": [
 				{
 					"type": "drawer",
@@ -51,8 +72,10 @@
 			]
 		},
 		"skyline_3": {
-			"z": 1,
-			"x": -250,
+			"transform": {
+				"z": 1,
+				"x": -250
+			},
 			"components": [
 				{
 					"type": "drawer",
