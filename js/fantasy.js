@@ -185,6 +185,21 @@
         function use(args, callback) {
             callback = callback || function(){};
 
+            if(typeof args === 'array') {
+                var left = args.length;
+                var rets = [];
+
+                _.each(args, function(args) {
+                    use(args, function wrapper(ret) {
+                        rets.push(ret);
+                        if(!--left) {
+                            callback(rets);
+                        }
+                    });
+                });
+                return;
+            }
+
             var description;
             var modulename;
 
@@ -235,8 +250,6 @@
             } else {
                 load(modulename, description, wrapper);
             }
-
-            return get(modulename);
         }
 
         function get(modulename) {
@@ -720,14 +733,10 @@
             return deps;
         }
 
-        function find_explicit_deps() {
+        function find_implicit_deps() {
             var deps = [];
+            
             if(level.content) {
-                if(level.content.download) {
-                    _.each(level.content.download, function (dlc) {
-                        deps.push(dlc.type);
-                    });
-                }
                 if(level.content.abstraction) {
                     _.each(level.content.abstraction, function (abstraction) {
                         deps.push(abstraction.type);
@@ -758,7 +767,7 @@
             if(level.depends) {
                 deps = deps.concat(level.depends);
             }
-            deps = deps.concat(find_explicit_deps());
+            deps = deps.concat(find_implicit_deps());
 
             if(deps.length > 0) {
                 var trigger = _.after(deps.length, load_step_2.bind(null, callback));
@@ -769,16 +778,6 @@
                 load_step_2(callback);
             }
         }
-
-        //load_dlc(dlc, callback)
-        //Carga y devuelve un contenido descargarble y llama a callback
-
-        function load_dlc(dlc, callback) {
-            console.log('Loading ' + dlc.type + ' from ' + dlc.args.src);
-            var Constructor = moduleManager.get(dlc.type);
-            return new Constructor(dlc.args, callback);
-        }
-
         //load_step_2(callback)
         //Carga el contenido descargable
 
