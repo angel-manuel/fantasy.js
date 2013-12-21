@@ -714,7 +714,7 @@
     Node.FromLevel = function (name, level, callback) {
         var root;
 
-        function find_explicit_deps_in_tree(tree) {
+        function find_implicit_deps_in_tree(tree) {
             var deps = [];
 
             var node_names = Object.keys(tree);
@@ -752,7 +752,7 @@
             
             var sub = level.tree || level.subnodes;
             if(sub) {
-                deps = deps.concat(find_explicit_deps_in_tree(sub));
+                deps = deps.concat(find_implicit_deps_in_tree(sub));
             }
 
             return _.uniq(deps);
