@@ -185,7 +185,7 @@
         function use(args, callback) {
             callback = callback || function(){};
 
-            if(typeof args === 'array') {
+            if(typeof args === 'object' && Array.isArray(args)) {
                 var left = args.length;
                 var rets = [];
 
@@ -770,10 +770,7 @@
             deps = deps.concat(find_implicit_deps());
 
             if(deps.length > 0) {
-                var trigger = _.after(deps.length, load_step_2.bind(null, callback));
-                _.each(deps, function (dep) {
-                    moduleManager.use(dep, trigger);
-                });
+                moduleManager.use(deps, load_step_2.bind(null, callback));
             } else {
                 load_step_2(callback);
             }
