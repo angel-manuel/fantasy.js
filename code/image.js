@@ -56,7 +56,6 @@ var image = Content.extend({
     },
     draw: function () {
         enviroment.context.save();
-        enviroment.context.translate(-this.sw/2, -this.sh/2);
         enviroment.context.drawImage(this.image, this.sx, this.sy, this.sw, this.sh, 0, 0, this.dw, this.dh);
         enviroment.context.restore();
     },
