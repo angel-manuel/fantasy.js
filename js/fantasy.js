@@ -378,24 +378,6 @@
         });
     };
 
-    //Content(src, onload)
-    //Clase base para todo dlc
-
-    var Content = Class.extend({
-        init: function (args, onload) {
-            this.loaded = false;
-            this.args = args;
-            this.onload = onload;
-        },
-        load: function () {
-            this.loaded = true;
-            if(this.onload) {
-                this.onload(this);
-            }
-        }
-    });
-    moduleManager.set('content', Content);
-
     //Abstractor(args)
     //Clase base para todos los abstractores
 

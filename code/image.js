@@ -1,7 +1,8 @@
 //image
-var Content = enviroment.moduleManager.get('content');
-var image = Content.extend({
+var image = Class.extend({
     init: function (args, onload) {
+        this.loaded = false;
+        this.args = args;
         this.onload = onload;
 
         if (args && typeof args === 'object') {
@@ -32,8 +33,6 @@ var image = Content.extend({
                 this.image.src = src;
             }
         }
-
-        this._super(args, onload);
     },
     load: function () {
         this.sw = Math.min(this.image.width - this.sx, this.image.width);
@@ -43,7 +42,10 @@ var image = Content.extend({
         this.width = this.image.width;
         this.height = this.image.height;
 
-        this._super();
+        this.loaded = true;
+        if(this.onload) {
+            this.onload(this);
+        }
     },
     draw: function () {
         enviroment.context.save();
