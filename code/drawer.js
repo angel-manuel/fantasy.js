@@ -1,7 +1,5 @@
 //drawer
-var Component = enviroment.moduleManager.get('component');
-
-var drawer = Component.extend({
+var drawer = enviroment.Component.extend({
     init: function (args) {
         this.image = enviroment.content[args.image];
         this.cx = this.image.width/2;

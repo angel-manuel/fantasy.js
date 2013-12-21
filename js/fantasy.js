@@ -71,24 +71,6 @@
             dummy: function(args, callback) {
                 callback(undefined);
             },
-            module: function(args, callback) {
-                if(args && args.src) {
-                    async_download(args.src, function(err, response) {
-                        if(err) {
-                            callback(undefined);
-                        }
-
-                        var pre_constructor = new Function('enviroment', response);
-                        var Constructor = pre_constructor(enviroment);
-
-                        //TODO: Add scheme
-
-                        callback(Constructor);
-                    });
-                } else {
-                    callback(undefined);
-                }
-            },
             enviroment: function(args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function(err, response) {
@@ -121,7 +103,7 @@
                         //TODO: Add scheme
 
                         loaders[args.name] = Loader;
-                        callback(Service);
+                        callback(Loader);
                     });
                 } else {
                     callback(undefined);
@@ -378,40 +360,6 @@
         });
     };
 
-    //Component(enviroment, args)
-    //Clase base para todos los componentes
-
-    var Component = Class.extend({
-        //init(args)
-        //Obtiene los argumentos del objeto args
-        init: function (args) {
-            this.loaded = false;
-            this.args = args;
-        },
-        load: function () {
-            this.loaded = true;
-        },
-        unload: function () {
-            this.loaded = false;
-        },
-        draw: function () {},
-        update: function (dt) {},
-        //prepare()
-        //Anuncia los servicios que el objeto ofrece
-        prepare: function (gameobject) {
-            this.gameobject = gameobject;
-        },
-        //destroy()
-        //Libera los recursos
-        destroy: function () {
-            delete this.args;
-            if(this.gameobject) {
-                this.gameobject = undefined;
-            }
-        }
-    });
-    moduleManager.set('component', Component);
-
     //Node(node_name, components, transform, subnodes)
     //Basicamente un contenedor de componentes y otros nodos con un transform
 
@@ -498,18 +446,14 @@
             if(!this.enabled)
                 throw 'Este nodo no esta inicializado';
 
-            if(component instanceof Component) {
-                component.prepare(this);
-                for(var i=0, len=this.components.length; i<len; ++i) {
-                    if(!this.components[i]) {
-                        this.components[i] = component;
-                        return i + 1;
-                    }
+            component.prepare(this);
+            for(var i=0, len=this.components.length; i<len; ++i) {
+                if(!this.components[i]) {
+                    this.components[i] = component;
+                    return i + 1;
                 }
-                return this.components.push(component);
-            } else {
-                throw 'component no es una instancia de Component';
             }
+            return this.components.push(component);
         },
         //deleteComponent(ref)
         //Borra el componente número ref
