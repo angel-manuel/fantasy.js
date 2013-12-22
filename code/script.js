@@ -1,8 +1,5 @@
-//script.js
-
-var Component = enviroment.moduleManager.get('component');
-
-var script = Component.extend({
+//script
+var script = enviroment.Component.extend({
 	init: function(args) {
 		this.event_handlers = {};
 
