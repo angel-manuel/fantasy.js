@@ -63,7 +63,7 @@
 				{
 					"type": "drawer",
 					"args": {
-						"image": "skyline_2",
+						"image": "skyline",
 						"align": "center"					
 					}
 				}
@@ -78,7 +78,7 @@
 				{
 					"type": "drawer",
 					"args": {
-						"image": "skyline_2",
+						"image": "skyline_3",
 						"align": "center"
 					}
 				}
