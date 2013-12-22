@@ -15,8 +15,8 @@
 	<script>
 		window.addEventListener('load', function(){
 			fantasy.init('canvas');
-			fantasy.load('level/skyline.json', function(root) {
-				fantasy.start(root);
+			fantasy.load('level/skyline.json', function(level) {
+				level.start();
 			});
 		});
 	</script>
