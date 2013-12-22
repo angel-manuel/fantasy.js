@@ -57,7 +57,11 @@ return function(args, callback) {
             var pre_constructor = new Function('enviroment', response);
             var Constructor = pre_constructor(enviroment);
 
-            callback(Constructor);
+            function callback_constructor(args, callback){
+                callback(new Constructor(args));
+            }
+
+            callback(callback_constructor);
         });
     } else {
         callback(undefined);

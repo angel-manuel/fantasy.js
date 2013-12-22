@@ -13,6 +13,20 @@
             "name": "image"
         }
     },
+    "fnode": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/fnode.js",
+            "name": "fnode"
+        }
+    },
+    "level": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/level.js",
+            "name": "level"
+        }
+    },
     "matrix": {
         "type": "component",
         "args": {

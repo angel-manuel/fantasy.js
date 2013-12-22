@@ -1,23 +1,21 @@
 {
 	"content": {
-		"download": {
-			"skyline": {
-				"type": "image",
-				"args": {
-					"src": "content/skyline.png"
-				}
-			},
-			"skyline_2": {
-				"type": "image",
-				"args": {
-					"src": "content/skyline_2.png"
-				}
-			},
-			"skyline_3": {
-				"type": "image",
-				"args": {
-					"src": "content/skyline_3.png"
-				}
+		"skyline": {
+			"type": "image",
+			"args": {
+				"src": "content/skyline.png"
+			}
+		},
+		"skyline_2": {
+			"type": "image",
+			"args": {
+				"src": "content/skyline_2.png"
+			}
+		},
+		"skyline_3": {
+			"type": "image",
+			"args": {
+				"src": "content/skyline_3.png"
 			}
 		}
 	},
