@@ -8,8 +8,6 @@
 
     var debug = true;
 
-    var loaded = false;
-
     var canvasname, canvas, context;
     //canvas - Canvas HTML5 element
     //context - canvas.getContext('2d')
@@ -279,7 +277,6 @@
         };
     };
     fantasy.load = function (levelfile, callback) {
-        loaded = false;
         console.log('Loading level from ' + levelfile);
         var xhr = getXMLHttpRequestObject();
         xhr.open('GET', levelfile, false);
