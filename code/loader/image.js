@@ -1,5 +1,5 @@
 //image
-var image = Class.extend({
+var image = enviroment.Content.extend({
     init: function (args, onload) {
         this.loaded = false;
         this.args = args;

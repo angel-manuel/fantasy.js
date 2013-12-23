@@ -65,10 +65,10 @@
         xhr = null;
 
         var loaders = {
-            dummy: function(args, callback) {
+            dummy: function (args, callback) {
                 callback(undefined);
             },
-            enviroment: function(args, callback) {
+            enviroment: function (args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function (err, response) {
                         if(err) {
@@ -87,7 +87,7 @@
                     callback(undefined);
                 }
             },
-            loader: function(args, callback) {
+            loader: function (args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function (err, response) {
                         if(err) {
@@ -106,19 +106,7 @@
                     callback(undefined);
                 }
             },
-            content: function(args, callback) {
-                if(args && args.obj && args.name) {
-                    args.obj.name = args.obj.name || args.name;
-                    use(args.obj.type, function(Content) {
-                        var tmp = new Content(args.obj.args, callback);
-                        enviroment.content[args.name] = tmp;
-                        callback(tmp);
-                    });
-                } else {
-                    callback(undefined);
-                }
-            },
-            eval: function(args, callback) {
+            eval: function (args, callback) {
                 if(args && args.src) {
                     async_download(args.src, function (err, response) {
                         if(err) {
