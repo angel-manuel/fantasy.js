@@ -3,10 +3,12 @@ var script = enviroment.Component.extend({
 	init: function(args) {
 		this.event_handlers = {};
 
-		var event_names = Object.keys(args);
+		this.event_codes = args;
+
+		var event_names = _.keys(this.event_codes);
 
 		event_names.forEach(function (event_name) {
-			var event_handler = (new Function('event', args[event_name])).bind(this);
+			var event_handler = (new Function('enviroment', 'event', this.event_codes[event_name])).bind(this);
 			//event_handler.script = this;
 			this.event_handlers[event_name] = event_handler;
 		}, this);
@@ -18,16 +20,16 @@ var script = enviroment.Component.extend({
 		this._super(args);
 	},
 	prepare: function(gameobject) {
-		var event_names = Object.keys(this.event_handlers);
+		var event_names = _.keys(this.event_handlers);
 
 		event_names.forEach(function (event_name) {
 			var event_handler = this.event_handlers[event_name];
 			event_handler.gameobject = gameobject;
-			gameobject.attach(event_name, event_handler);
+			gameobject.attach(event_name, _.bind(event_handler, event_handler, enviroment));
 		}, this);
 
 		if(this.event_handlers.prepare) {
-			this.event_handlers.prepare(gameobject);
+			this.event_handlers.prepare(enviroment, gameobject);
 		}
 		this._super(gameobject);
 	},
