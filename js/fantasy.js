@@ -109,9 +109,10 @@
             content: function(args, callback) {
                 if(args && args.obj && args.name) {
                     args.obj.name = args.obj.name || args.name;
-                    use(args.obj, function(obj) {
-                        enviroment.content[args.name] = obj;
-                        callback(obj);
+                    use(args.obj.type, function(Content) {
+                        var tmp = new Content(args.obj.args, callback);
+                        enviroment.content[args.name] = tmp;
+                        callback(tmp);
                     });
                 } else {
                     callback(undefined);

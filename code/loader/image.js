@@ -66,7 +66,4 @@ var image = Class.extend({
     }
 });
 
-return function image_loader(args, onload) {
-    var tmp = new image(args, onload);
-    return tmp;
-};
+return image;
