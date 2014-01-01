@@ -35,7 +35,7 @@ var script = enviroment.Component.extend({
 	},
 	update: function (dt) {
 		if(this.event_handlers.update) {
-			this.event_handlers.update(dt);
+			this.event_handlers.update(enviroment, dt);
 		}
 		this._super(dt);
 	}
