@@ -1,11 +1,4 @@
 {
-    "content": {
-        "type": "loader",
-        "args": {
-            "src": "code/loader/content.js",
-            "name": "content"
-        }
-    },
     "component": {
         "type": "loader",
         "args": {
