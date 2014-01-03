@@ -65,66 +65,62 @@
         xhr = null;
 
         var loaders = {
-            dummy: function (args, callback) {
+            dummy: function dummy_loader(args, callback) {
                 callback(undefined);
             },
-            enviroment: function (args, callback) {
+            enviroment: function enviroment_loader(args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function (err, response) {
                         if(err) {
-                            callback(undefined);
+                            throw err;
                         }
 
                         var pre_constructor = new Function('enviroment', response);
-                        var Service = pre_constructor(enviroment);
+                        var service = pre_constructor(enviroment);
 
-                        //TODO: Add scheme
-
-                        enviroment[args.name] = Service;
-                        callback(Service);
+                        enviroment[args.name] = service;
+                        callback(service);
                     });
                 } else {
-                    callback(undefined);
+                    throw 'enviroment_loader: Not enough args';
                 }
             },
-            loader: function (args, callback) {
+            loader: function loader_loader(args, callback) {
                 if(args && args.src && args.name) {
                     async_download(args.src, function (err, response) {
                         if(err) {
-                            callback(undefined);
+                            throw err;
                         }
 
                         var pre_constructor = new Function('enviroment', response);
-                        var Loader = pre_constructor(enviroment);
+                        var loader = pre_constructor(enviroment);
 
-                        //TODO: Add scheme
-
-                        loaders[args.name] = Loader;
-                        callback(Loader);
+                        loaders[args.name] = loader;
+                        callback(loader);
                     });
                 } else {
-                    callback(undefined);
+                    throw 'loader_loader: Not enough args';
                 }
             },
-            eval: function (args, callback) {
+            eval: function eval_loader(args, callback) {
                 if(args && args.src) {
                     async_download(args.src, function (err, response) {
                         if(err) {
-                            callback(undefined);
+                            throw err;
                         }
 
                         var ret = eval(response);
                         callback(ret);
                     });
                 } else {
-                    callback(undefined);
+                    throw 'eval_loader: Not enough args';
                 }
             }
         };
 
         //Copying loaders to modules
-        _.each(_.keys(loaders), function(loadername) {
-            modules[loadername] = loaders[loadername];
+        _.each(loaders, function(loader, loadername) {
+            modules[loadername] = loader;
         });
 
         function load(modulename, description, callback) {
