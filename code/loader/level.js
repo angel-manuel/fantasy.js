@@ -160,15 +160,9 @@ var Level = Class.extend({
 
 return function level_loader(args, callback) {
 	var content = [];
-	_.each(_.keys(args.content), function prepare_asset(assetname) {
-		var asset = args.content[assetname];
-		content.push({
-			type: 'content',
-			args: {
-				name: assetname,
-				obj: asset
-			}
-		});
+	_.each(args.content, function prepare_asset(asset, assetname) {
+        asset.args.name = assetname;
+		content.push(asset);
 	});
 
 	enviroment.moduleManager.use(content, function load_tree() {
