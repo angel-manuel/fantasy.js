@@ -125,6 +125,7 @@
 
         function load(modulename, description, callback) {
             var loader = loaders[description.type || "dummy"];
+            description.args.name = description.args.name || modulename;
             if(loader) {
                 loader(description.args, callback);
             } else {
