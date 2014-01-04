@@ -1,8 +1,8 @@
 //collision_system_2d
-var Component = enviroment.moduleManager.get('component');
-var vector2 = enviroment.moduleManager.get('vector2');
+var vector2 = enviroment.vector2;
+var bounding_sphere = enviroment.bounding_sphere;
 
-var debug = true;
+var debug = false;
 var on_neg_vel = false;
 
 var collision_description_2d = Class.extend({
@@ -137,9 +137,9 @@ var collision_description_2d = Class.extend({
     }
 });
 
-var collision_system_2d = Component.extend({
+var collision_system_2d = enviroment.Component.extend({
     init: function (args) {
-        this.bounding_sphere = enviroment.moduleManager.get('bounding_sphere');
+
         this.colliders = [];
 
         this._super(args);
@@ -166,7 +166,7 @@ var collision_system_2d = Component.extend({
             for(var b=a+1; b<len; ++b) {
                 var A = this.colliders[a], B = this.colliders[b];
                 if(A && B) {
-                    if(!this.bounding_sphere.Intersects(A.getBoundingSphere(), B.getBoundingSphere())) {
+                    if(!bounding_sphere.Intersects(A.getBoundingSphere(), B.getBoundingSphere())) {
                         continue;
                     }
                     

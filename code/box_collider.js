@@ -1,5 +1,7 @@
 //box_collider
-var box_collider = enviroment.moduleManager.get('polygon_collider').extend({
+var polygon_collider = enviroment.components['polygon_collider'];
+
+var box_collider = polygon_collider.extend({
     init: function (args) {
         this.width = args.width;
         this.half_width = this.width / 2;

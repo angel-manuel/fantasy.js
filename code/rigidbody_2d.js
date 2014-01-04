@@ -1,8 +1,7 @@
 //rigidbody_2d
-var Component = enviroment.moduleManager.get('component');
-var vector2 = enviroment.moduleManager.get('vector2');
+var vector2 = enviroment.vector2;
 
-var rigidbody_2d = Component.extend({
+var rigidbody_2d = enviroment.Component.extend({
     init: function (args) {
         if(args.hasOwnProperty('mass')) {
             if(args.mass <= 0) {

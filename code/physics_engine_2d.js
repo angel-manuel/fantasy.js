@@ -1,9 +1,8 @@
 //physics_engine_2d
-var Component = enviroment.moduleManager.get('component');
-var vector2 = enviroment.moduleManager.get('vector2');
-var solver = enviroment.moduleManager.get('solver');
+var vector2 = enviroment.vector2;
+var solver = enviroment.solver;
 
-var physics_engine_2d = Component.extend({
+var physics_engine_2d = enviroment.Component.extend({
     init: function ( args) {
         this.enviroment = enviroment;
         this.gravity = new vector2(args.gx, args.gy);
@@ -43,7 +42,7 @@ var physics_engine_2d = Component.extend({
         _.each(this.bodies, function (body) {
             if(!body.isFixed()) {
                 var body_state = body.getState();
-                body.setState(solver.solve(body_state, body.__proto__.problem, dt));
+                body.setState(solver.solve(body_state, body.problem, dt));
             }
         });
     }

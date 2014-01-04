@@ -80,5 +80,82 @@
         "args": {
             "src": "code/perspective_camera.js"
         }
+    },
+    "vector2": {
+        "type": "enviroment",
+        "args": {
+            "src": "code/vector2.js"
+        }
+    },
+    "bounding_sphere": {
+        "depends": ["vector2"],
+        "type": "enviroment",
+        "args": {
+            "src": "code/bounding_sphere.js"
+        }
+    },
+    "solver": {
+        "type": "enviroment",
+        "args": {
+            "src": "code/solver.js"
+        }
+    },
+    "collision_system_2d": {
+        "depends": [
+            "bounding_sphere",
+            "vector2"
+        ],
+        "type": "component",
+        "args": {
+            "src": "code/collision_system_2d.js"
+        }
+    },
+    "rigidbody_2d": {
+        "depends": ["vector2"],
+        "type": "component",
+        "args": {
+            "src": "code/rigidbody_2d.js"
+        }
+    },
+    "physics_engine_2d": {
+        "depends": [
+            "solver",
+            "vector2",
+            "rigidbody_2d"
+        ],
+        "type": "component",
+        "args": {
+            "src": "code/physics_engine_2d.js"
+        }
+    },
+    "polygon_collider": {
+        "depends": [
+            "bounding_sphere",
+            "vector2"
+        ],
+        "type": "component",
+        "args": {
+            "src": "code/polygon_collider.js"
+        }
+    },
+    "box_collider": {
+        "depends": ["polygon_collider"],
+        "type": "component",
+        "args": {
+            "src": "code/box_collider.js"
+        }
+    },
+    "polygon_drawer": {
+        "type": "component",
+        "args": {
+            "src": "code/polygon_drawer.js"
+        }
+    },
+    "box_drawer": {
+        "depends": ["polygon_drawer"],
+        "type": "component",
+        "args": {
+            "src": "code/box_drawer.js"
+        }
     }
 }

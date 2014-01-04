@@ -1,10 +1,13 @@
 {
     "content": {
-        "download": {
-            "box_prefab": {"type": "prefab", "src": "prefab/box_prefab.json"}
+        "box": {
+            "type": "image",
+            "args": {
+                "src": "content/box.png"
+            }
         }
     },
-    "subnodes": {
+    "tree": {
         "boxfield": {
             "components": [
                 {
@@ -48,19 +51,38 @@
                 ]
                 },
                 "falling_box": {
-                    "rotation": 0.4,
-                    "y": -400,
+                    "transform": {
+                        "y": -400
+                    },
                     "components": [
                         {
-                            "type": "prefab_binder",
+                            "type": "drawer",
                             "args": {
-                                "prefab": "box_prefab"
+                                "target": "box",
+                                "align": "center"
+                            }
+                        },
+                        {
+                            "type": "rigidbody_2d",
+                            "args": {
+                                "mass": 1,
+                                "angular_inertia": 45.25,
+                                "angular_velocity": 8
+                            }
+                        },
+                        {
+                            "type": "box_collider",
+                            "args": {
+                                "width": 64,
+                                "height": 64
                             }
                         }
                     ],
                     "subnodes": {
                         "camera": {
-                            "z": -1,
+                            "transform": {
+                                "z": -1
+                            },
                             "components": [
                                 {
                                     "type": "perspective_camera",
@@ -80,14 +102,31 @@
                     }
                 },
                 "falling_box_2": {
-                    "rotation": 0.6,
-                    "x": 200,
-                    "y": -400,
+                    "transform": {
+                        "x": 200,
+                        "y": -300
+                    },
                     "components": [
                         {
-                            "type": "prefab_binder",
+                            "type": "drawer",
                             "args": {
-                                "prefab": "box_prefab"
+                                "target": "box",
+                                "align": "center"
+                            }
+                        },
+                        {
+                            "type": "rigidbody_2d",
+                            "args": {
+                                "mass": 1,
+                                "angular_inertia": 45.25,
+                                "angular_velocity": -16
+                            }
+                        },
+                        {
+                            "type": "box_collider",
+                            "args": {
+                                "width": 64,
+                                "height": 64
                             }
                         }
                     ]

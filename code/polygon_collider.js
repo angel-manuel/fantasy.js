@@ -1,9 +1,8 @@
 //polygon_collider
-var Component = enviroment.moduleManager.get('component');
-var vector2 = enviroment.moduleManager.get('vector2');
-var bounding_sphere = enviroment.moduleManager.get('bounding_sphere');
+var vector2 = enviroment.vector2;
+var bounding_sphere = enviroment.bounding_sphere;
 
-var polygon_collider = Component.extend({
+var polygon_collider = enviroment.Component.extend({
     init: function (args) {
         var edges = args.edges;
         var edge_number = edges.length/2;

@@ -1,7 +1,5 @@
 //polygon_drawer
-var Component = enviroment.moduleManager.get('component');
-
-var polygon_drawer = Component.extend({
+var polygon_drawer = enviroment.Component.extend({
     init: function (args) {
         this.edges = args.edges;
         this.fillStyle = args.fillStyle || "#000000";

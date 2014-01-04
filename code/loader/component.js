@@ -46,6 +46,7 @@ function async_download(url, callback) {
 }
 
 enviroment.Component = Component;
+enviroment.components = {};
 
 return function(args, callback) {
     if(args && args.src) {
@@ -56,6 +57,8 @@ return function(args, callback) {
 
             var pre_constructor = new Function('enviroment', response);
             var Constructor = pre_constructor(enviroment);
+
+            enviroment.components[args.name] = Constructor;
 
             function callback_constructor(args, callback){
                 callback(new Constructor(args));

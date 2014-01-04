@@ -1,6 +1,6 @@
 //box_drawer
 
-var polygon_drawer = enviroment.moduleManager.get('polygon_drawer');
+var polygon_drawer = enviroment.components['polygon_drawer'];
 
 var box_drawer = polygon_drawer.extend({
 	init: function(args) {
