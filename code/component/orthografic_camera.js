@@ -1,6 +1,4 @@
 //orthografic_camera
-var AABB = enviroment.moduleManager.get('aabb');
-
 var orthografic_camera = enviroment.Component.extend({
     init: function (args) {
         this.layer_mask = args.layer_mask || 65535;
