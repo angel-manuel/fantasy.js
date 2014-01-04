@@ -1,6 +1,4 @@
 //isometric_collider
-var Component = enviroment.moduleManager.get('component');
-
 var Path = {
     North: 1,
     NorthEast: 2,
@@ -40,7 +38,7 @@ var Path = {
 };
 
 
-var isometric_collider = Component.extend({
+var isometric_collider = enviroment.Component.extend({
     init: function (args) {
         this.matrix = enviroment.content[args.matrix];
         this.width = this.matrix.width;

@@ -80,7 +80,7 @@ var IsometricMap = Class.extend({
 
             ctx.restore();
             ctx.translate(0, -dy);
-        }), this);
+        }, this));
         ctx.restore();
     }
 });

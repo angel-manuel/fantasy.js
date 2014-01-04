@@ -149,5 +149,11 @@
         "args": {
             "src": "code/component/box_drawer.js"
         }
+    },
+    "isometric_collider": {
+        "type": "component",
+        "args": {
+            "src": "code/component/isometric_collider.js"
+        }
     }
 }

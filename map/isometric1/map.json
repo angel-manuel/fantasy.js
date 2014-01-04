@@ -5,11 +5,14 @@
     "tile_width": 64,
     "tile_height": 64,
     "tilemaps": {
-        "grass_and_water": "content/isotilemap.png"
+        "grass_and_water": {
+            "src": "content/isotilemap.png",
+            "tile_width": 64,
+            "tile_height": 64
+        }
     },
     "layers": {
         "floor": {
-            "type": "tilelayer",
             "tilemap": "grass_and_water",
             "opacity": 1,
             "x": 0,
