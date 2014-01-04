@@ -1,50 +1,58 @@
 {
     "content": {
-        "download": {
-            "map": {"type": "map", "src": "map/isometric1/map.json"},
-            "collision_matrix": {"type": "matrix", "src": "map/isometric1/collision.json"},
-            "walking_sprite": {"type": "image", "src": "content/player.png"},
-            "swordman_sprite": {"type": "image", "src": "content/sword_player.png"}
+        "isomap": {
+            "type": "isometric_map",
+            "args": {
+                "src": "map/isometric1/map.json"
+            }
         },
-        "abstraction": {
-            "player_animation": {
-                "type": "animation_collection",
-                "args": {
-                    "image": "walking_sprite",
-                    "tile_width": 32,
-                    "tile_height": 32,
-                    "time": 1,
-                    "index": {
-                        "idle": [2],
-                        "1": [43, 44, 45, 46, 47, 48],
-                        "2": [25, 26, 27, 28, 29, 30],
-                        "3": [7, 8, 9, 10, 11, 12],
-                        "4": [1, 2, 3, 4, 5, 6],
-                        "5": [19, 20, 21, 22, 23, 24],
-                        "6": [13, 14, 15, 16, 17, 18],
-                        "7": [31, 32, 33, 34, 35, 36],
-                        "8": [37, 38, 39, 40, 41, 42]
-                    }
+        "collision_matrix": {
+            "type": "matrix",
+            "args": {
+                "src": "map/isometric1/collision.json"
+            }
+        },
+        "player_animation": {
+            "type": "animation_collection",
+            "args": {
+                "image": {
+                    "src": "content/player.png"
+                },
+                "tile_width": 32,
+                "tile_height": 32,
+                "time": 1,
+                "index": {
+                    "idle": [2],
+                    "1": [43, 44, 45, 46, 47, 48],
+                    "2": [25, 26, 27, 28, 29, 30],
+                    "3": [7, 8, 9, 10, 11, 12],
+                    "4": [1, 2, 3, 4, 5, 6],
+                    "5": [19, 20, 21, 22, 23, 24],
+                    "6": [13, 14, 15, 16, 17, 18],
+                    "7": [31, 32, 33, 34, 35, 36],
+                    "8": [37, 38, 39, 40, 41, 42]
                 }
-            },
-            "swordman_animation": {
-                "type": "animation_collection",
-                "args": {
-                    "image": "swordman_sprite",
-                    "tile_width": 48,
-                    "tile_height": 48,
-                    "time": 1,
-                    "index": {
-                        "idle": [36],
-                        "8": [9, 10, 11, 12, 13, 14, 15, 16],
-                        "1": [17, 18, 19, 20, 21, 22, 23, 24],
-                        "2": [1, 2, 3, 4, 5, 6, 7, 8],
-                        "3": [41, 42, 43, 44, 45, 46, 47, 48],
-                        "4": [33, 34, 35, 36, 37, 38, 39, 40],
-                        "5": [49, 50, 51, 52, 53, 54, 55, 56],
-                        "6": [57, 58, 59, 60, 61, 62, 63, 64],
-                        "7": [25, 26, 27, 28, 29, 30, 31, 32]
-                    }
+            }
+        },
+        "swordman_animation": {
+            "type": "animation_collection",
+            "args": {
+                "image": {
+                    "src": "content/sword_player.png"
+                },
+                "tile_width": 48,
+                "tile_height": 48,
+                "time": 1,
+                "index": {
+                    "idle": [36],
+                    "8": [9, 10, 11, 12, 13, 14, 15, 16],
+                    "1": [17, 18, 19, 20, 21, 22, 23, 24],
+                    "2": [1, 2, 3, 4, 5, 6, 7, 8],
+                    "3": [41, 42, 43, 44, 45, 46, 47, 48],
+                    "4": [33, 34, 35, 36, 37, 38, 39, 40],
+                    "5": [49, 50, 51, 52, 53, 54, 55, 56],
+                    "6": [57, 58, 59, 60, 61, 62, 63, 64],
+                    "7": [25, 26, 27, 28, 29, 30, 31, 32]
                 }
             }
         }
@@ -64,9 +72,9 @@
                     }
                 },
                 {
-                    "type": "dummy_drawer",
+                    "type": "drawer",
                     "args": {
-                        "target": "map"
+                        "target": "isomap"
                     }
                 }
             ],

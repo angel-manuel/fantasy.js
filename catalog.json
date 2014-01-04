@@ -29,6 +29,12 @@
             "src": "code/loader/tilemap.js"
         }
     },
+    "matrix": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/matrix.js"
+        }
+    },
     "plain_map": {
         "depends": ["tilemap"],
         "type": "loader",
