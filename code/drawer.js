@@ -1,9 +1,7 @@
 //drawer
 var drawer = enviroment.Component.extend({
     init: function (args) {
-        this.image = enviroment.content[args.image];
-        this.cx = this.image.width/2;
-        this.cy = this.image.height/2;
+        this.target = enviroment.content[args.target];
 
         this.align = args.align || 'none';
         this.fillStyle = args.fillStyle;
@@ -21,13 +19,17 @@ var drawer = enviroment.Component.extend({
         if(this.strokeStyle)
             ctx.strokeStyle = this.strokeStyle;
 
+
+        var cx = this.target.width/2;
+        var cy = this.target.height/2;
+
         switch(this.align) {
             case 'center':
                 ctx.translate(-this.cx, -this.cy);
                 break;
         }
 
-        this.image.draw();
+        this.target.draw();
         ctx.restore();
 
         this._super();

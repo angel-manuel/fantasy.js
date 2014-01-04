@@ -2,29 +2,45 @@
     "component": {
         "type": "loader",
         "args": {
-            "src": "code/loader/component.js",
-            "name": "component"
+            "src": "code/loader/component.js"
         }
     },
     "image": {
         "type": "loader",
         "args": {
-            "src": "code/loader/image.js",
-            "name": "image"
+            "src": "code/loader/image.js"
         }
     },
     "fnode": {
         "type": "loader",
         "args": {
-            "src": "code/loader/fnode.js",
-            "name": "fnode"
+            "src": "code/loader/fnode.js"
         }
     },
     "level": {
         "type": "loader",
         "args": {
-            "src": "code/loader/level.js",
-            "name": "level"
+            "src": "code/loader/level.js"
+        }
+    },
+    "tilemap": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/tilemap.js"
+        }
+    },
+    "plain_map": {
+        "depends": ["tilemap"],
+        "type": "loader",
+        "args": {
+            "src": "code/loader/plain_map.js"
+        }
+    },
+    "isometric_map": {
+        "depends": ["tilemap"],
+        "type": "loader",
+        "args": {
+            "src": "code/loader/isometric_map.js"
         }
     },
     "script": {
@@ -49,6 +65,13 @@
         "type": "component",
         "args": {
             "src": "code/aabb.js"
+        }
+    },
+    "orthografic_camera": {
+        "depends": ["aabb"],
+        "type": "component",
+        "args": {
+            "src": "code/orthografic_camera.js"
         }
     },
     "perspective_camera": {

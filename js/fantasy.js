@@ -259,6 +259,7 @@
             context: context,
             content: content,
             get_xhr: getXMLHttpRequestObject,
+            async_download: async_download,
             moduleManager: moduleManager
         };
     };

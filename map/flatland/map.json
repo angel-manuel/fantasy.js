@@ -5,11 +5,14 @@
     "tile_width": 32,
     "tile_height": 32,
     "tilemaps": {
-        "stuff": "content/test2.png"
+        "stuff": {
+            "src": "content/test2.png",
+            "tile_width": 32,
+            "tile_height": 32
+        }
     },
     "layers": {
         "floor": {
-            "type": "tilelayer",
             "tilemap": "stuff",
             "opacity": 1,
             "x": 0,

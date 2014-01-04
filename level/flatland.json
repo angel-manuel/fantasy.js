@@ -1,16 +1,19 @@
 {
 	"content": {
-		"download": {
-			"map": {"type": "map", "src": "map/flatland/map.json"}
+		"flatmap": {
+			"type": "plain_map",
+			"args": {
+				"src": "map/flatland/map.json"
+			}
 		}
 	},
 	"tree": {
 		"terrain": {
 			"components": [
 				{
-					"type": "dummy_drawer",
+					"type": "drawer",
 					"args": {
-						"target": "map"
+						"target": "flatmap"
 					}
 				}
 			]

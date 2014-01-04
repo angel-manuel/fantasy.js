@@ -34,12 +34,16 @@ var image = Class.extend({
 });
 
 return function image_loader(args, onload) {
-    var img = new Image();
-    img.addEventListener('load', _.bind(function(img, args) {
-        args.image = img;
-        var ret = new image(args);
-        enviroment.content[args.name] = ret;
-        onload(ret);
-    }, undefined, img, args));
-    img.src = args.src;
+    if(args && args.src) {
+        var img = new Image();
+        img.addEventListener('load', _.bind(function(img, args) {
+            args.image = img;
+            var ret = new image(args);
+            enviroment.content[args.name] = ret;
+            onload(ret);
+        }, undefined, img, args));
+        img.src = args.src;
+    } else {
+        throw 'image_loader: Not enough args';
+    }
 };
