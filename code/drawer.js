@@ -19,15 +19,17 @@ var Drawer = enviroment.Component.extend({
         if(this.strokeStyle)
             ctx.strokeStyle = this.strokeStyle;
 
-        var target = this.target;
+
+        var cx = this.target.width/2;
+        var cy = this.target.height/2;
 
         switch(this.align) {
             case 'center':
-                ctx.translate(-target.width/2, -target.height/2);
+                ctx.translate(-cx, -cy);
                 break;
         }
 
-        target.draw();
+        this.target.draw();
         ctx.restore();
 
         this._super();

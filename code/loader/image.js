@@ -1,56 +1,23 @@
 //image
-var image = enviroment.Content.extend({
-    init: function (args, onload) {
-        this.loaded = false;
-        this.args = args;
-        this.onload = onload;
-
+var image = Class.extend({
+    init: function (args) {
         if (args && typeof args === 'object') {
             this.enviroment = enviroment;
             this.sx = args.sx || 0;
             this.sy = args.sy || 0;
 
-            if(args.image && typeof args.image === 'object') {
-                this.image = args.image;
-                this.load();
-            } else {
-                this.sw = args.sw;
-                this.sh = args.sh;
-                this.dw = args.dw || this.sw;
-                this.dh = args.dh || this.sh;
-            }
-        
-            if(args.image && typeof args.image === 'string') {
-                this.image = enviroment.content[args.image].getSubImage(this.sx, this.sy, this.sw, this.sh, this.dw, this.dh).image;
-                this.load();
-            } else if(args.src && typeof args.src === 'string') {
-                this.loaded = false;
-                var src = args.src;
-                this.sx = 0;
-                this.sy = 0;
-                this.image = new Image();
-                this.image.onload = this.load.bind(this);
-                this.image.src = src;
-            }
-        }
-    },
-    load: function () {
-        this.sw = Math.min(this.image.width - this.sx, this.image.width);
-        this.sh = Math.min(this.image.height - this.sy, this.image.height);
-        this.dw = Math.min(this.sw, this.image.width - this.sx);
-        this.dh = Math.min(this.sh, this.image.height - this.sy);
-        this.width = this.image.width;
-        this.height = this.image.height;
-
-        this.loaded = true;
-        if(this.onload) {
-            this.onload(this);
+            this.image = args.image;
+            
+            this.sw = Math.min(this.image.width - this.sx, this.image.width);
+            this.sh = Math.min(this.image.height - this.sy, this.image.height);
+            this.dw = Math.min(this.sw, this.image.width - this.sx);
+            this.dh = Math.min(this.sh, this.image.height - this.sy);
+            this.width = this.dw;
+            this.height = this.dh;
         }
     },
     draw: function () {
-        enviroment.context.save();
         enviroment.context.drawImage(this.image, this.sx, this.sy, this.sw, this.sh, 0, 0, this.dw, this.dh);
-        enviroment.context.restore();
     },
     getSubImage: function (sx, sy, sw, sh, dw, dh) {
         var ret = new image({
@@ -66,4 +33,17 @@ var image = enviroment.Content.extend({
     }
 });
 
-return image;
+return function image_loader(args, onload) {
+    if(args && args.src) {
+        var img = new Image();
+        img.addEventListener('load', _.bind(function(img, args) {
+            args.image = img;
+            var ret = new image(args);
+            enviroment.content[args.name] = ret;
+            onload(ret);
+        }, undefined, img, args));
+        img.src = args.src;
+    } else {
+        throw 'image_loader: Not enough args';
+    }
+};
