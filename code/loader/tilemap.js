@@ -25,8 +25,8 @@ var tilemap = Class.extend({
             }, this);
             this.tile_number = this.cells.length;
         } else {
-            for(var y=0; y<this.height; ++y) {
-                for(var x=0; x<this.width; ++x) {
+            for(var y=0; y<this.nheight; ++y) {
+                for(var x=0; x<this.nwidth; ++x) {
                     this.cells.push(this.image.getSubImage(x*this.tile_width, y*this.tile_height, this.tile_width, this.tile_height));
                 }
             }
