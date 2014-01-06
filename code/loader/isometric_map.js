@@ -24,7 +24,7 @@ var IsometricMap = Class.extend({
             var tilemap = enviroment.content[layer.tilemap];
 
             var pw = (w+h)*dx;
-            var ph = (w+h)*dy;
+            var ph = (w+h+1)*dy;
 
             var hiddencanvas = document.createElement('canvas');
             hiddencanvas.setAttribute('width', pw);
@@ -35,7 +35,7 @@ var IsometricMap = Class.extend({
 
             var x, y, tile;
             ctx.save();
-            ctx.translate(pw/2, 0);
+            ctx.translate(pw/2 -dx, -dy);
             for(y = 0; y < h; ++y) {
                 ctx.save();
                 for(x = 0; x < w; ++x) {
@@ -63,7 +63,7 @@ var IsometricMap = Class.extend({
         var ctx = enviroment.context;
 
         ctx.save();
-        ctx.translate(0, (layern-1)*dy);
+        ctx.translate(+dx, (layern-1)*dy + dy);
         _.each(this.layers, _.bind(function (layer, layername) {
             ctx.save();
             var x = layer.x || 0;

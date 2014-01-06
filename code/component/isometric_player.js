@@ -1,11 +1,10 @@
 //isometric_player
-var Component = enviroment.moduleManager.get('component');
-
 var PlayerState = {
     Idle: 1,
     Walking: 2
 };
-var isometric_player = Component.extend({
+
+var isometric_player = enviroment.Component.extend({
     init: function (args) {
         this.walking_speed = args.walking_speed || 1;
 
@@ -77,13 +76,17 @@ var isometric_player = Component.extend({
         enviroment.context.save();
         enviroment.context.translate(this.collider.tile_width/4, this.collider.tile_height/4);
         enviroment.context.translate(-this.animations_collection.tile_width/2, -this.animations_collection.tile_height/2);
+        
+        var anim_draw;
         switch (this.state) {
             case PlayerState.Walking:
                 var animation_time = (this.walking_time + this.walking_initial_time) % this.walking_speed;
-                this.animations_collection.get(this.walking_orientation).draw(animation_time);
+                anim_draw = this.animations_collection.get(this.walking_orientation);
+                anim_draw(animation_time);
                 break;
             case PlayerState.Idle:
-                this.animations_collection.get('idle').draw(this.idle_time);
+                anim_draw = this.animations_collection.get('idle');
+                anim_draw(this.idle_time);
                 break;
         }
         this._super();

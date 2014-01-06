@@ -155,5 +155,23 @@
         "args": {
             "src": "code/component/isometric_collider.js"
         }
+    },
+    "animation_collection": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/animation_collection.js"
+        }
+    },
+    "animation": {
+        "type": "loader",
+        "args": {
+            "src": "code/loader/animation.js"
+        }
+    },
+    "isometric_player": {
+        "type": "component",
+        "args": {
+            "src": "code/component/isometric_player.js"
+        }
     }
 }
