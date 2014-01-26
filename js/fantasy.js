@@ -302,10 +302,12 @@
             ctx.fillRect(0, 0, cnv.width, cnv.height);
 
             ctx.fillStyle = "black";
-            ctx.fillRect(cnv.width/4, cnv.height/2 - 15, 3*cnv.width/4, cnv.height/2 + 15);
+            ctx.font = "12pt sans-serif";
+            ctx.fillText(Math.round(100*completed/total) + '%', cnv.width/4, cnv.height/2 - 25);
+            ctx.fillRect(cnv.width/4 - 2, cnv.height/2 - 17, cnv.width/2 + 4, 24);
 
             ctx.fillStyle = "green";
-            ctx.fillRect(cnv.width/4 + 1, cnv.height/2 - 13, (cnv.width/4 + 1)+(completed/total)*(cnv.width/2 - 2), cnv.height + 13);
+            ctx.fillRect(cnv.width/4, cnv.height/2 - 15, (completed/total)*cnv.width/2, 20);
 
             ctx.restore();
         });
