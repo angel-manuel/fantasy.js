@@ -56,13 +56,17 @@
         var modules = {};
         var subs = {};
 
-        var xhr = new XMLHttpRequest();
+        var xhr = getXMLHttpRequestObject();
         
         xhr.open('GET', 'catalog.json', false);
         xhr.send(null);
         var catalog = JSON.parse(xhr.responseText);
 
         xhr = null;
+
+        var progress_completed = 0;
+        var progress_total = 0;
+        var progress_callback = function(){};
 
         var loaders = {
             dummy: function dummy_loader(args, callback) {
@@ -202,11 +206,15 @@
 
             subs[modulename] = [callback];
             console.log('ModuleManager: loading ' + modulename);
+            progress_total = progress_total + 1;
+            progress_callback(progress_completed, progress_total);
 
             function wrapper(module) {
                 modules[modulename] = module;
 
                 console.log('ModuleManager:' + modulename + ' loaded');
+                progress_completed = progress_completed + 1;
+                progress_callback(progress_completed, progress_total);
 
                 _.each(subs[modulename], function alert_sub(sub) {
                     sub(module);
@@ -231,10 +239,21 @@
             modules[modulename] = module;
         }
 
+        function setProgressCallback(p_callback) {
+            progress_callback = p_callback;
+            resetProgress();
+        }
+
+        function resetProgress() {
+            progress_completed = 0;
+            progress_total = 0;
+        }
+
         return {
             use: use,
             get: get,
-            set: set
+            set: set,
+            setProgressCallback: setProgressCallback
         };
     })();
 
@@ -272,6 +291,24 @@
 
         enviroment.content = content;
         enviroment.level = level;
+
+        moduleManager.setProgressCallback(function progress(completed, total) {
+            var ctx = enviroment.context;
+            var cnv = enviroment.canvas;
+
+            ctx.save();
+
+            ctx.fillStyle = "#f80";
+            ctx.fillRect(0, 0, cnv.width, cnv.height);
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(cnv.width/4, cnv.height/2 - 15, 3*cnv.width/4, cnv.height/2 + 15);
+
+            ctx.fillStyle = "green";
+            ctx.fillRect(cnv.width/4 + 1, cnv.height/2 - 13, (cnv.width/4 + 1)+(completed/total)*(cnv.width/2 - 2), cnv.height + 13);
+
+            ctx.restore();
+        });
 
         moduleManager.use({
             type: 'level',
