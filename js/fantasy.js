@@ -1,5 +1,14 @@
 (function (){
     "use strict";
+
+    function error(msg) {
+        console.error('ERROR:'+msg);
+        throw 'ERROR:'+msg;
+    }
+
+    function warning(msg) {
+        console.warn('WARNING:'+msg);
+    }
     
     var global_object = window || this;
 
@@ -55,106 +64,34 @@
     var moduleManager = (function moduleManager() {
         var modules = {};
         var subs = {};
+        var base_directory = 'code/';
 
-        var xhr = getXMLHttpRequestObject();
-        
-        xhr.open('GET', 'catalog.json', false);
-        xhr.send(null);
-        var catalog = JSON.parse(xhr.responseText);
-
-        xhr = null;
-
-        var progress_completed = 0;
-        var progress_total = 0;
-        var progress_callback = function(){};
-
-        var loaders = {
-            dummy: function dummy_loader(args, callback) {
-                callback(undefined);
-            },
-            enviroment: function enviroment_loader(args, callback) {
-                if(args && args.src && args.name) {
-                    async_download(args.src, function (err, response) {
-                        if(err) {
-                            throw err;
-                        }
-
-                        var pre_constructor = new Function('enviroment', response);
-                        var service = pre_constructor(enviroment);
-
-                        enviroment[args.name] = service;
-                        callback(service);
-                    });
-                } else {
-                    throw 'enviroment_loader: Not enough args';
-                }
-            },
-            loader: function loader_loader(args, callback) {
-                if(args && args.src && args.name) {
-                    async_download(args.src, function (err, response) {
-                        if(err) {
-                            throw err;
-                        }
-
-                        var pre_constructor = new Function('enviroment', response);
-                        var loader = pre_constructor(enviroment);
-
-                        loaders[args.name] = loader;
-                        callback(loader);
-                    });
-                } else {
-                    throw 'loader_loader: Not enough args';
-                }
-            },
-            eval: function eval_loader(args, callback) {
-                if(args && args.src) {
-                    async_download(args.src, function (err, response) {
-                        if(err) {
-                            throw err;
-                        }
-
-                        var ret = eval(response);
-                        callback(ret);
-                    });
-                } else {
-                    throw 'eval_loader: Not enough args';
-                }
-            }
-        };
-
-        //Copying loaders to modules
-        _.each(loaders, function(loader, loadername) {
-            modules[loadername] = loader;
-        });
-
-        function load(modulename, description, callback) {
-            var loader = loaders[description.type || "dummy"];
-            description.args.name = description.args.name || modulename;
-            if(loader) {
-                loader(description.args, callback);
+        function get(modulename) {
+            var module = modules[modulename];
+            if(module) {
+                return module;
             } else {
-                use(description.type, function load_exotic_module(loader) {
-                    loader(description.args, callback);
-                });
+                error('moduleManager:'+modulename+' not loaded');
             }
         }
 
-        function get_random_name() {
-            var name = "random_" + Math.floor(Math.random()*100000);
-            while(subs[name] || modules[name]) {
-                name = "random_" + Math.floor(Math.random()*100000);
+        function set(modulename, module) {
+            if(modules[modulename]) {
+                warning('moduleManager:'+modulename+'being overwritten');
             }
-            return name;
+            modules[modulename] = module;
         }
 
         function use(args, callback) {
             callback = callback || function(){};
 
             if(!args) {
+                warn('moduleManager:use:No args');
                 callback();
                 return;
             }
 
+            //Array-case
             if(typeof args === 'object' && Array.isArray(args)) {
                 if(args.length > 0) {
                     var left = args.length;
@@ -169,84 +106,28 @@
                         });
                     });
                 } else {
+                    warn('moduleManager:use:No args');
                     callback();
                 }
                 return;
-            }
-
-            var description;
-            var modulename;
-
-            switch(typeof args) {
-                case 'string':
-                    modulename = args;
-                    if(!catalog[modulename]) {
-                        callback(false);
+            } else if(typeof args === 'string') {
+                var modulename = args;
+                var filename = base_directory+modulename+'.js';
+                async_download(filename, function (err, code){
+                    if(err) {
+                        error('moduleManager:Couldn\'t download '+filename);
                         return;
                     }
 
-                    if(modules[modulename]) {
-                        callback(modules[modulename]);
-                        return;
-                    }
+                    var f = new Function('set', 'use', 'get', code);
+                    var ret = f(set, use, get);
 
-                    description = catalog[modulename];
-
-                    break;
-                case 'object':
-                    description = args;
-                    modulename = args.name || get_random_name();
-                    break;
-            }
-
-            if(subs[modulename]) {
-                subs[modulename].push(callback);
-                return;
-            }
-
-            subs[modulename] = [callback];
-            console.log('ModuleManager: loading ' + modulename);
-            progress_total = progress_total + 1;
-            progress_callback(progress_completed, progress_total);
-
-            function wrapper(module) {
-                modules[modulename] = module;
-
-                console.log('ModuleManager:' + modulename + ' loaded');
-                progress_completed = progress_completed + 1;
-                progress_callback(progress_completed, progress_total);
-
-                _.each(subs[modulename], function alert_sub(sub) {
-                    sub(module);
-                });
-            }
-
-            if(description.depends && description.depends.length > 0) {
-                var trigger = _.after(description.depends.length, _.bind(load, undefined, modulename, description, wrapper));
-                _.each(description.depends, function dependency_solve(dependency) {
-                    use(dependency, trigger);
+                    callback(ret);
                 });
             } else {
-                load(modulename, description, wrapper);
+                error('moduleManager:args has unknown type');
+                return;
             }
-        }
-
-        function get(modulename) {
-            return (modulename in modules) ? modules[modulename] : undefined;
-        }
-
-        function set(modulename, module) {
-            modules[modulename] = module;
-        }
-
-        function setProgressCallback(p_callback) {
-            progress_callback = p_callback;
-            resetProgress();
-        }
-
-        function resetProgress() {
-            progress_completed = 0;
-            progress_total = 0;
         }
 
         return {
@@ -256,6 +137,7 @@
             setProgressCallback: setProgressCallback
         };
     })();
+    moduleManager.set('async_download', async_download);
 
     fantasy.init = function (cnvname) {
         console.log('Initializing...');
