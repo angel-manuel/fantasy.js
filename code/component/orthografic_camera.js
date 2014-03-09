@@ -91,4 +91,4 @@ var orthografic_camera = enviroment.Component.extend({
     }
 });
 
-return orthografic_camera;
+retrn(orthografic_camera);

@@ -17,13 +17,10 @@
 
     var debug = true;
 
+    var enviroment;
     var canvasname, canvas, context;
     //canvas - Canvas HTML5 element
     //context - canvas.getContext('2d')
-
-    var enviroment;
-
-    var tick_interval = false;
 
     //getXMLHttpRequestObject()
     //Metodo multiplataforma para obtener un xhr
@@ -173,7 +170,7 @@
         },
         draw: function () {
             var frame_buffer = this.handler.getFrameBuffer();
-            enviroment.context.drawImage(frame_buffer, this.pixel_x, this.pixel_y, this.pixel_width, this.pixel_height);
+            context.drawImage(frame_buffer, this.pixel_x, this.pixel_y, this.pixel_width, this.pixel_height);
         },
         onclick: function (event) {
             var at = {
@@ -185,7 +182,7 @@
     });
     Display.displays = [];
     Display.Add = function display_add(x, y, width, height, depth, handler) {
-        var disp = displays.push(new Display(x, y, width, height, depth, handler));
+        var disp = Display.displays.push(new Display(x, y, width, height, depth, handler));
         Display.displays.sort(function depth_order(a, b) {
             if(a.depth < b.depth) {
                 return 1;
@@ -220,10 +217,12 @@
             }
         }
     };
+    window.addEventListener('click', Display.OnClick);
 
     var Level = Class.extend({
         init: function(tree) {
             this.tree = tree;
+            this.loaded = false;
         },
         load: function() {
             this.tree.load();
@@ -236,22 +235,23 @@
         },
         start: function() {
             this.stop();
-
             enviroment.root = this.tree;
-            enviroment.root.load();
 
-            window.addEventListener('click', onclick.bind(this));
+            this.tree.load();
 
             Level.current = this;
             Level.last_t = Date.now();
             requestAnimationFrame(Level.tick);
-            loaded = true;
+            this.loaded = true;
         },
         stop: function() {
-            loaded = false;
+            this.loaded = false;
             if(Level.current === this) {
                 Level.current = false;
                 Level.current.unload();
+            }
+            if(enviroment.root === this.tree) {
+                enviroment.root = false;
             }
         }
     });
@@ -259,18 +259,18 @@
     Level.tick = function tick() {
         if(Level.current) {
             var t = Date.now();
-            var dt = (t - last_t)/1000;
-            last_t = t;
+            var dt = (t - Level.last_t)/1000;
+            Level.last_t = t;
 
             Level.current.update(dt);
-            enviroment.context.save();
+            context.save();
 
-            enviroment.context.fillStyle = "#000000";
-            enviroment.context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = "#000000";
+            context.fillRect(0, 0, canvas.width, canvas.height);
 
             Display.DrawAll();
 
-            enviroment.context.restore();
+            context.restore();
             requestAnimationFrame(tick);
         }
     };
@@ -378,6 +378,36 @@
             scale_z: B.scale_z * A.scale_z
         });
     };
+
+    var Component = Class.extend({
+        //init(args)
+        //Obtiene los argumentos del objeto args
+        init: function (args) {
+            this.loaded = false;
+            this.args = args;
+        },
+        load: function () {
+            this.loaded = true;
+        },
+        unload: function () {
+            this.loaded = false;
+        },
+        draw: function () {},
+        update: function (dt) {},
+        //prepare()
+        //Anuncia los servicios que el objeto ofrece
+        prepare: function (gameobject) {
+            this.gameobject = gameobject;
+        },
+        //destroy()
+        //Libera los recursos
+        destroy: function () {
+            delete this.args;
+            if(this.gameobject) {
+                this.gameobject = undefined;
+            }
+        }
+    });
 
     var FNode = Class.extend({
         init: function (node_name, enabled, layer, transform) {
@@ -669,7 +699,9 @@
             context: context,
             get_xhr: getXMLHttpRequestObject,
             async_download: async_download,
-            moduleManager: moduleManager
+            moduleManager: moduleManager,
+            Component: Component,
+            Display: Display
         };
     };
     fantasy.load = function (levelfile, callback) {
@@ -680,14 +712,64 @@
                 return;
             }
             var level = JSON.parse(res);
+            var root;
 
             enviroment.level = level;
 
-            //TODO
-            moduleManager.use('loader/level', function(level_loader) {
-                var lvl = level_loader(level);
-                callback(lvl);
-            });
+            if(level.content) {
+                var content_trigger = _.after(_.keys(level.content).length, load_tree);
+                _.each(level.content, function load_asset(cnt, cntname) {
+                    moduleManager.use('loader/'+cnt.type, function load_asset_2(loader) {
+                        cnt.args.name = cntname;
+                        loader(cnt.args, content_trigger);
+                    });
+                });
+            } else {
+                load_tree();
+            }
+
+            function load_node(nodename, node, callback) {
+                var N = new FNode(nodename, node.layer, new Transform(node.transform));
+                var n_components = 0;
+                if(node.components) {
+                    n_components = node.components.length;
+                }
+                var n_subnodes = 0;
+                if(node.subnodes) {
+                    n_subnodes = _.keys(node.subnodes).length;
+                }
+
+                var trigger = _.after(n_subnodes+n_components, _.bind(callback, null, N));
+
+                if(node.subnodes) {
+                    _.each(node.subnodes, function load_subnode(subnode, subnodename) {
+                        load_node(subnodename, subnode, function add_subnode(S) {
+                            N.appendChild(S);
+                            trigger();
+                        });
+                    });
+                }
+
+                if(node.components) {
+                    _.each(node.components, function load_component(component) {
+                        moduleManager.use('component/'+component.type, function load_component_2(C) {
+                            N.addComponent(new C(component.args));
+                            trigger();
+                        });
+                    });
+                }
+            }
+
+            function load_tree() {
+                if(level.tree) {
+                    load_node('root', {subnodes:level.tree}, function lvl_save(R) {
+                        callback(new Level(R));
+                    });
+                } else {
+                    error('load:level has no tree info');
+                    return;
+                }
+            }
         });
     };
 })();
