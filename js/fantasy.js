@@ -22,8 +22,6 @@
     //context - canvas.getContext('2d')
 
     var enviroment;
-    var root;
-    var content;
 
     var tick_interval = false;
 
@@ -119,8 +117,8 @@
                         return;
                     }
 
-                    var f = new Function('set', 'use', 'get', code);
-                    var ret = f(set, use, get);
+                    var f = new Function('set', 'use', 'get', 'enviroment', code);
+                    var ret = f(set, use, get, enviroment);
 
                     callback(ret);
                 });
@@ -133,8 +131,7 @@
         return {
             use: use,
             get: get,
-            set: set,
-            setProgressCallback: setProgressCallback
+            set: set
         };
     })();
     moduleManager.set('async_download', async_download);
@@ -151,14 +148,25 @@
             document.appendchild(canvas);
         }
 
+        function resize_canvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        document.body.style.scroll = 'none';
+        document.body.style.overflow = 'hidden';
+        document.body.style.margin= '0px';
+        document.body.style.padding = '0px';
+        canvas.style.margin = '0px';
+        canvas.style.padding = '0px';
+        resize_canvas();
+        window.addEventListener('resize', resize_canvas);
+
         context = canvas.getContext('2d');
-        content = {};
 
         enviroment = {
             canvasname: cnvname,
             canvas: canvas,
             context: context,
-            content: content,
             get_xhr: getXMLHttpRequestObject,
             async_download: async_download,
             moduleManager: moduleManager
@@ -166,37 +174,20 @@
     };
     fantasy.load = function (levelfile, callback) {
         console.log('Loading level from ' + levelfile);
-        var xhr = getXMLHttpRequestObject();
-        xhr.open('GET', levelfile, false);
-        xhr.send(null);
-        var level = JSON.parse(xhr.responseText);
+        async_download(levelfile, function (err,res) {
+            if(err) {
+                error('load:Couldn\'t load level');
+                return;
+            }
+            var level = JSON.parse(res);
 
-        enviroment.content = content;
-        enviroment.level = level;
+            enviroment.level = level;
 
-        moduleManager.setProgressCallback(function progress(completed, total) {
-            var ctx = enviroment.context;
-            var cnv = enviroment.canvas;
-
-            ctx.save();
-
-            ctx.fillStyle = "#f80";
-            ctx.fillRect(0, 0, cnv.width, cnv.height);
-
-            ctx.fillStyle = "black";
-            ctx.font = "12pt sans-serif";
-            ctx.fillText(Math.round(100*completed/total) + '%', cnv.width/4, cnv.height/2 - 25);
-            ctx.fillRect(cnv.width/4 - 2, cnv.height/2 - 17, cnv.width/2 + 4, 24);
-
-            ctx.fillStyle = "green";
-            ctx.fillRect(cnv.width/4, cnv.height/2 - 15, (completed/total)*cnv.width/2, 20);
-
-            ctx.restore();
+            //TODO
+            moduleManager.use('loader/level', function(level_loader) {
+                var lvl = level_loader(level);
+                callback(lvl);
+            });
         });
-
-        moduleManager.use({
-            type: 'level',
-            args: level
-        }, callback);
     };
 })();
