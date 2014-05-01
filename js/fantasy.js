@@ -729,7 +729,7 @@
             }
 
             function load_node(nodename, node, callback) {
-                var N = new FNode(nodename, node.layer, new Transform(node.transform));
+                var N = new FNode(nodename, true, node.layer, new Transform(node.transform));
                 var n_components = 0;
                 if(node.components) {
                     n_components = node.components.length;
