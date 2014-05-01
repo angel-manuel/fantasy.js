@@ -77,6 +77,13 @@
             modules[modulename] = module;
         }
 
+        function callback_wrapper(modulename, module) {
+            modules[modulename] = module;
+            _.each(subs[modulename], function propagate_to_subs(sub) {
+                sub(module);
+            });
+        }
+
         function use(args, callback) {
             callback = callback || function(){};
 
@@ -111,16 +118,23 @@
                     return modules[modulename];
                 }
 
-                var filename = base_directory+modulename+'.js';
-                async_download(filename, function (err, code){
-                    if(err) {
-                        error('moduleManager:Couldn\'t download '+filename);
-                        return;
-                    }
+                if(subs[modulename]) {
+                    subs[modulename].push(callback);
+                } else {
+                    subs[modulename] = [callback];
+                    var callback_wrapper_specific = _.bind(callback_wrapper, this, modulename);
 
-                    var f = new Function('set', 'use', 'get', 'enviroment', 'retrn', code);
-                    var ret = f(set, use, get, enviroment, callback);
-                });
+                    var filename = base_directory+modulename+'.js';
+                    async_download(filename, function (err, code){
+                        if(err) {
+                            error('moduleManager:Couldn\'t download '+filename);
+                            return;
+                        }
+
+                        var f = new Function('set', 'use', 'get', 'enviroment', 'retrn', code);
+                        var ret = f(set, use, get, enviroment, callback_wrapper_specific);
+                    });
+                }
             } else {
                 error('moduleManager:args has unknown type');
                 return;
