@@ -1,4 +1,5 @@
 //tilemap
+use('loader/image', function (image_loader) {
 var tilemap = Class.extend({
     init: function (args) {
         this.image = args.image;
@@ -43,22 +44,20 @@ var tilemap = Class.extend({
     }
 });
 
-return function tilemap_loader(args, onload) {
-    if(args && args.image) {
-        var t = new tilemap(args);
-        enviroment.content[args.name] = t;
-        onload(t);
-    } else if(args && args.src) {
-        enviroment.moduleManager.use({
-            type: 'image',
-            args: args
-        }, function (img) {
+retrn(function tilemap_loader(args, onload) {
+    if(args) {
+        var name = args.name;
+        args.name = name + '/image';
+        
+        image_loader(args, function (img) {
             args.image = img;
             var t = new tilemap(args);
-            enviroment.content[args.name] = t;
+            set('content/' + name, t);
             onload(t);
         });
     } else {
         throw 'tilemap_loader: Not enough args';
     }
-};
+});
+
+});

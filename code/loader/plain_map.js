@@ -1,3 +1,5 @@
+
+use('loader/tilemap', function (tilemap_loader) {
 var PlainMap = Class.extend({
     init: function (args) {
         var map = this.map = args.map;
@@ -21,7 +23,7 @@ var PlainMap = Class.extend({
             var w = layer.width;
             var h = layer.height;
             var data = layer.data;
-            var tilemap = enviroment.content[layer.tilemap];
+            var tilemap = get('content/' + layer.tilemap);
 
             var pw = w*dx;
             var ph = h*dy;
@@ -71,7 +73,7 @@ var PlainMap = Class.extend({
     }
 });
 
-return function plain_map_loader(args, onload) {
+retrn(function plain_map_loader(args, onload) {
     enviroment.async_download(args.src, function (err, res) {
         if (err) {
             throw err;
@@ -79,19 +81,17 @@ return function plain_map_loader(args, onload) {
 
         var map = args.map = JSON.parse(res);
 
-        var tilemaps_to_load = [];
-        _.each(map.tilemaps, function (tilemap, tilemapname) {
-            tilemap.name = tilemapname;
-            tilemaps_to_load.push({
-                type: 'tilemap',
-                args: tilemap
-            });
-        });
-
-        enviroment.moduleManager.use(tilemaps_to_load, function () {
+        var on_tilemap_load = _.after(_.keys(map.tilemaps).length, function () {
             var m = new PlainMap(args);
-            enviroment.content[args.name] = m;
+            set('content/' + args.name, m);
             onload(m);
         });
+
+        _.each(map.tilemaps, function (tilemap_args, tilemap_name) {
+            tilemap_args.name = tilemap_name;
+            tilemap_loader(tilemap_args, on_tilemap_load);
+        });
     });
-};
+});
+
+});

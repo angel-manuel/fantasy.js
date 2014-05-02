@@ -72,7 +72,7 @@
 
         function set(modulename, module) {
             if(modules[modulename]) {
-                warning('moduleManager:'+modulename+'being overwritten');
+                warning('moduleManager:'+modulename+' being overwritten');
             }
             modules[modulename] = module;
         }
@@ -141,10 +141,15 @@
             }
         }
 
+        function list() {
+            return _.keys(modules);
+        }
+
         return {
             use: use,
             get: get,
-            set: set
+            set: set,
+            list: list
         };
     })();
     moduleManager.set('async_download', async_download);
@@ -715,7 +720,8 @@
             async_download: async_download,
             moduleManager: moduleManager,
             Component: Component,
-            Display: Display
+            Display: Display,
+            addDisplay: Display.Add
         };
     };
     fantasy.load = function (levelfile, callback) {
