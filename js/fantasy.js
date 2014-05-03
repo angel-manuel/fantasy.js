@@ -79,6 +79,7 @@
 
         function callback_wrapper(modulename, module) {
             modules[modulename] = module;
+            console.log('moduleManager:' + modulename + ' loaded');
             _.each(subs[modulename], function propagate_to_subs(sub) {
                 sub(module);
             });
@@ -97,13 +98,13 @@
             if(typeof args === 'object' && Array.isArray(args)) {
                 if(args.length > 0) {
                     var left = args.length;
-                    var rets = [];
+                    var rets = {};
 
                     _.each(args, function(arg) {
                         use(arg, function wrapper(ret) {
-                            rets[args] = ret;
+                            rets[arg] = ret;
                             if(!--left) {
-                                callback.apply(callback, rets);
+                                callback(rets);
                             }
                         });
                     });
@@ -121,6 +122,7 @@
                 if(subs[modulename]) {
                     subs[modulename].push(callback);
                 } else {
+                    console.log('moduleManager:Loading ' + modulename);
                     subs[modulename] = [callback];
                     var callback_wrapper_specific = _.bind(callback_wrapper, this, modulename);
 

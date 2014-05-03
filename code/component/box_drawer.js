@@ -1,6 +1,6 @@
 //box_drawer
 
-var polygon_drawer = enviroment.components['polygon_drawer'];
+use('component/polygon_drawer', function (polygon_drawer){
 
 var box_drawer = polygon_drawer.extend({
 	init: function(args) {
@@ -18,4 +18,5 @@ var box_drawer = polygon_drawer.extend({
 	}
 });
 
-return box_drawer;
+retrn(box_drawer);
+});

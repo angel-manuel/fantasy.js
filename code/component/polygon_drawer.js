@@ -19,4 +19,4 @@ var polygon_drawer = enviroment.Component.extend({
     }
 });
 
-return polygon_drawer;
+retrn(polygon_drawer);

@@ -95,4 +95,4 @@ vector2.FromTuple = function (tuple) {
     return new vector2(tuple[0], tuple[1]);
 };
 
-return vector2;
+retrn(vector2);
