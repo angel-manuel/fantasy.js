@@ -1,5 +1,4 @@
 //level
-var displays = [];
 var Display = Class.extend({
     init: function (x, y, width, height, depth, handler) {
         this.x = x;
@@ -45,10 +44,10 @@ var Display = Class.extend({
         return this.handler.onclick(at);
     }
 });
-
-enviroment.addDisplay = function add_display(x, y, width, height, depth, handler) {
+Display.displays = [];
+Display.Add = function display_add(x, y, width, height, depth, handler) {
     var disp = displays.push(new Display(x, y, width, height, depth, handler));
-    displays.sort(function depth_order(a, b) {
+    Display.displays.sort(function depth_order(a, b) {
         if(a.depth < b.depth) {
             return 1;
         } else if(a.depth > b.depth) {
@@ -59,67 +58,30 @@ enviroment.addDisplay = function add_display(x, y, width, height, depth, handler
     });
     return disp;
 };
-
-//resize_canvas()
-//Ajusta el tamaño del canvas al de la pantalla
-
-function resize_canvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    _.each(displays, function (display) {
-        display.update_size();
+Display.DrawAll = function display_draw_all() {
+    _.each(Display.displays, function draw_display(d){
+        d.draw();
     });
-}
-
-var fullscreen = false;
-if (fullscreen) {
-    //TODO: Creo que esperaremos hasta que la API fullscreen este estandarizada
-} else {
-    document.body.style.scroll = 'none';
-    document.body.style.overflow = 'hidden';
-    document.body.style.margin= '0px';
-    document.body.style.padding = '0px';
-    canvas.style.margin = '0px';
-    canvas.style.padding = '0px';
-    resize_canvas();
-    window.addEventListener('resize', resize_canvas);
-}
-
-//onclick(event)
-//Captura el evento de click y lo delega
-
-function onclick(event) {
+};
+Display.UpdateSizeAll = function display_update_size_all() {
+    _.each(Display.displays, function update_display_size(d) {
+        d.update_size();
+    });
+};
+window.addEventListener('resize', Display.UpdateSizeAll);
+Display.OnClick = function display_onclick(event) {
     var x = event.clientX,
         y = event.clientY;
 
-    for(var i=displays.length; i--;) {
-        var display = displays[i];
+    for(var i=Display.displays.length; i--;) {
+        var display = Display.displays[i];
         if(display.pixel_x < x && x < (display.pixel_x + display.pixel_width) && display.pixel_y < y && y < (display.pixel_y + display.pixel_height)) {
             if(display.onclick(event))
                 break;
         }
     }
-}
+};
 
-//tick(dt)
-//Loop principal del juego, actualiza y dibuja el arbol
-
-function tick(dt) {
-    enviroment.root.update(dt);
-    enviroment.context.save();
-
-    enviroment.context.fillStyle = "#000000";
-    enviroment.context.fillRect(0, 0, canvas.width, canvas.height);
-
-    _.each(displays, function (display) {
-        display.draw();
-    });
-
-    enviroment.context.restore();
-}
-
-var tick_interval;
 var Level = Class.extend({
 	init: function(tree) {
 		this.tree = tree;
@@ -141,39 +103,59 @@ var Level = Class.extend({
 
         window.addEventListener('click', onclick.bind(this));
 
-        tick_interval = setInterval(tick.bind(this, 1 / 45), 1000 / 45);
+        Level.current = this;
+        Level.last_t = Date.now();
+        requestAnimationFrame(Level.tick);
         loaded = true;
 	},
 	stop: function() {
         loaded = false;
-        if(tick_interval) {
-            clearInterval(tick_interval);
-            tick_interval = false;
-        }
-
-        if(enviroment.root) {
-            enviroment.root.unload();
-            enviroment.root = false;
+        if(Level.current === this) {
+            Level.current = false;
+            Level.current.unload();
         }
 	}
 });
+Level.last_t = Date.now();
+Level.tick = function tick() {
+    if(Level.current) {
+        var t = Date.now();
+        var dt = (t - last_t)/1000;
+        last_t = t;
 
-return function level_loader(args, callback) {
-	var content = [];
-	_.each(args.content, function prepare_asset(asset, assetname) {
-        asset.args.name = assetname;
-		content.push(asset);
-	});
+        Level.current.update(dt);
+        enviroment.context.save();
 
-	enviroment.moduleManager.use(content, function load_tree() {
-		enviroment.moduleManager.use({
-			type: 'fnode',
-			args: {
-				name: args.name || 'root',
-				subnodes: args.tree
-			}
-		}, function return_tree(tree) {
-			callback(new Level(tree));
-		});
-	});
+        enviroment.context.fillStyle = "#000000";
+        enviroment.context.fillRect(0, 0, canvas.width, canvas.height);
+
+        Display.DrawAll();
+
+        enviroment.context.restore();
+        requestAnimationFrame(tick);
+    }
 };
+Level.current = false;
+
+function level_loader(args, callback) {
+    var content = [];
+    _.each(args.content, function prepare_asset(asset, assetname) {
+        asset.args.name = assetname;
+        content.push(asset);
+    });
+
+    enviroment.moduleManager.use(content, function load_tree() {
+        enviroment.moduleManager.use({
+            type: 'fnode',
+            args: {
+                name: args.name || 'root',
+                subnodes: args.tree
+            }
+        }, function return_tree(tree) {
+            callback(new Level(tree));
+        });
+    });
+}
+
+set('loader/level', level_loader);
+return level_loader;

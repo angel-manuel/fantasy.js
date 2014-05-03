@@ -41,4 +41,4 @@ var script = enviroment.Component.extend({
 	}
 });
 
-return script;
+retrn(script);

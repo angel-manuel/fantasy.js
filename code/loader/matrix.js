@@ -20,20 +20,20 @@ var Matrix = Class.extend({
     }
 });
 
-return function matrix_loader(args, onload) {
+retrn(function matrix_loader(args, onload) {
     if(args && args.src) {
         enviroment.async_download(args.src, function (err, res) {
             var obj = JSON.parse(res);
 
             var m = new Matrix(obj);
-            enviroment.content[args.name] = m;
+            set('content/' + args.name, m);
             onload(m);
         });
     } else if (args && args.data) {
         var m = new Matrix(args);
-        enviroment.content[args.name] = m;
+        set('content/' + args.name, m);
         onload(m);
     } else {
         throw 'matrix_loader: Not enough args';
     }
-};
+});

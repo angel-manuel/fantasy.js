@@ -1,6 +1,7 @@
 //collision_system_2d
-var vector2 = enviroment.vector2;
-var bounding_sphere = enviroment.bounding_sphere;
+use(['enviroment/vector2', 'enviroment/bounding_sphere'], function (dep){
+var vector2 = dep['enviroment/vector2'];
+var bounding_sphere = dep['enviroment/bounding_sphere'];
 
 var debug = false;
 var on_neg_vel = false;
@@ -258,4 +259,5 @@ var collision_system_2d = enviroment.Component.extend({
     }
 });
 
-return collision_system_2d;
+retrn(collision_system_2d);
+});

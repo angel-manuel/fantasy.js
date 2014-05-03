@@ -27,7 +27,7 @@ var perspective_camera = enviroment.Component.extend({
         this.pixel_height = height;
     },
     prepare: function (gameobject) {
-        this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
+        this.display = enviroment.Display.Add(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
         this._super(gameobject);
     },
     getFrameBuffer: function () {
@@ -83,4 +83,4 @@ var perspective_camera = enviroment.Component.extend({
     }
 });
 
-return perspective_camera;
+retrn(perspective_camera);

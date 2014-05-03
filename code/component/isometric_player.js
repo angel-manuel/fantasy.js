@@ -17,7 +17,7 @@ var isometric_player = enviroment.Component.extend({
 
         this.idle_time = 0;
 
-        this.animations_collection = enviroment.content[args.animations_collection];
+        this.animations_collection = get('content/' + args.animations_collection);
 
         this._super(args);
     },
@@ -94,4 +94,4 @@ var isometric_player = enviroment.Component.extend({
     }
 });
 
-return isometric_player;
+retrn(isometric_player);
