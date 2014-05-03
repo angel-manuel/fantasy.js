@@ -1,10 +1,10 @@
 //physics_engine_2d
-var vector2 = enviroment.vector2;
-var solver = enviroment.solver;
+use(['enviroment/vector2', 'enviroment/solver'], function (dep){
+var vector2 = dep['enviroment/vector2'];
+var solver = dep['enviroment/solver'];
 
 var physics_engine_2d = enviroment.Component.extend({
     init: function ( args) {
-        this.enviroment = enviroment;
         this.gravity = new vector2(args.gx, args.gy);
         this.bodies = [];
 
@@ -48,4 +48,5 @@ var physics_engine_2d = enviroment.Component.extend({
     }
 });
 
-return physics_engine_2d;
+retrn(physics_engine_2d);
+});

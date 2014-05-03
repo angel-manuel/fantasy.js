@@ -39,4 +39,4 @@ var solver = Class.extend({
     }
 });
 
-return new solver();
+retrn(new solver());

@@ -1,8 +1,9 @@
 //bounding_sphere
-var vector2 = enviroment.vector2;
 
+var vector2;
 var bounding_sphere = Class.extend({
     init: function (center, radius) {
+        vector2 = center.constructor;
         this.center = center;
         this.radius = radius;
     },
@@ -17,4 +18,4 @@ bounding_sphere.Intersects = function (A, B) {
     return (distance.length() < (A.radius + B.radius));
 };
 
-return bounding_sphere;
+retrn(bounding_sphere);

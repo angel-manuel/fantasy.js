@@ -1,6 +1,8 @@
 //polygon_collider
-var vector2 = enviroment.vector2;
-var bounding_sphere = enviroment.bounding_sphere;
+
+use(['enviroment/vector2', 'enviroment/bounding_sphere'], function (dep){
+var vector2 = dep['enviroment/vector2'];
+var bounding_sphere = dep['enviroment/bounding_sphere'];
 
 var polygon_collider = enviroment.Component.extend({
     init: function (args) {
@@ -70,4 +72,5 @@ var polygon_collider = enviroment.Component.extend({
     }
 });
 
-return polygon_collider;
+retrn(polygon_collider);
+});

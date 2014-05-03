@@ -1,6 +1,6 @@
 //rigidbody_2d
-var vector2 = enviroment.vector2;
 
+use('enviroment/vector2', function(vector2){
 var rigidbody_2d = enviroment.Component.extend({
     init: function (args) {
         if(args.hasOwnProperty('mass')) {
@@ -142,4 +142,5 @@ var rigidbody_2d = enviroment.Component.extend({
     }
 });
 
-return rigidbody_2d;
+retrn(rigidbody_2d);
+});
