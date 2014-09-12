@@ -305,19 +305,6 @@
             this.scale_y = args.scale_y || args.scale || 1;
             this.scale_z = args.scale_z || args.scale || 1;
         },
-        apply: function () {
-            enviroment.context.translate(this.x, this.y);
-            enviroment.context.rotate(this.rotation);
-            enviroment.context.scale(this.scale_x, this.scale_y);
-        },
-        applyPerspective: function (camera) {
-            enviroment.context.translate(camera.x, camera.y);
-            var rel_depth = this.z - camera.z;
-
-            enviroment.context.translate((this.x - camera.x)/rel_depth, (this.y - camera.y)/rel_depth);
-            enviroment.context.rotate(this.rotation);
-            enviroment.context.scale(this.scale_x/rel_depth, this.scale_y/rel_depth);
-        },
         combine: function (transform) {
             this.x += transform.x * this.scale_x;
             this.y += transform.y * this.scale_y;
@@ -581,11 +568,7 @@
         },
         setUpTransform: function(transform) {
             this.up_transform = transform;
-            this.transform = Transform.Combine(this.up_transform, this.local_transform);
-
-            _.each(this.subnodes, function (subnode) {
-                subnode.setUpTransform(this.transform);
-            }, this);
+            this.rebuildTransform();
         },
         rebuildTransform: function () {
             this.transform = Transform.Combine(this.up_transform, this.local_transform);
@@ -607,9 +590,9 @@
             this.rebuildTransform();
         },
         moveTo: function (x, y, z) {
-            var rx = x - this.transform.x || 0,
-                ry = y - this.transform.y || 0,
-                rz = z - this.transform.z || 0;
+            var rx = x - this.transform.x,
+                ry = y - this.transform.y,
+                rz = z - this.transform.z;
             
             this.translate(rx, ry, rz);
         },
