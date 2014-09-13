@@ -1,8 +1,9 @@
-//orthografic_camera
-var orthografic_camera = enviroment.Component.extend({
+//camera
+var camera = enviroment.Component.extend({
     init: function (args) {
         this.layer_mask = args.layer_mask || 65535;
         this.background = args.background || '#000000';
+        this.rotation = args.rotation || true;
 
         var viewport = args.viewport || {};
 
@@ -64,7 +65,9 @@ var orthografic_camera = enviroment.Component.extend({
             switch(mode) {
                 case "orthographic":
                     tctx.translate(pw/2, ph/2);
-                    tctx.rotate(-camera.rotation);
+                    if(this.rotation) {
+                        tctx.rotate(-camera.rotation);
+                    }
                     tctx.scale(camera.scale_x, camera.scale_y);
                     
                     tctx.translate(t.x - camera.x, t.y - camera.y);
@@ -76,7 +79,9 @@ var orthografic_camera = enviroment.Component.extend({
                     var rel_depth = t.z - camera.z;
                     
                     tctx.translate(pw/2, ph/2);
-                    tctx.rotate(-camera.rotation);
+                    if(this.rotation) {
+                        tctx.rotate(-camera.rotation);
+                    }
                     tctx.scale(camera.scale_x, camera.scale_y);
                     
                     tctx.scale(1/rel_depth, 1/rel_depth);
@@ -92,7 +97,9 @@ var orthografic_camera = enviroment.Component.extend({
                         iy = (t.x + t.y)/2;
                     
                     tctx.translate(pw/2, ph/2);
-                    tctx.rotate(-camera.rotation);
+                    if(this.rotation) {
+                        tctx.rotate(-camera.rotation);
+                    }
                     tctx.scale(camera.scale_x, camera.scale_y);
                     
                     //tctx.scale(1/rel_depth, 1/rel_depth);
@@ -122,10 +129,12 @@ var orthografic_camera = enviroment.Component.extend({
             case "orthographic":
                 at.x /= camera.scale_x;
                 at.y /= camera.scale_y;
-                var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
-                    rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
-                at.x = rot_x;
-                at.y = rot_y;
+                if(this.rotation) {
+                    var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
+                        rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
+                    at.x = rot_x;
+                    at.y = rot_y;
+                }
                 at.x += camera.x;
                 at.y += camera.y;
                 at.x -= this.pixel_width/2;
@@ -134,10 +143,12 @@ var orthografic_camera = enviroment.Component.extend({
             case "perspective":
                 at.x /= camera.scale_x;
                 at.y /= camera.scale_y;
-                var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
-                    rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
-                at.x = rot_x;
-                at.y = rot_y;
+                if(this.rotation) {
+                    var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
+                        rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
+                    at.x = rot_x;
+                    at.y = rot_y;
+                }
                 at.x += camera.x;
                 at.y += camera.y;
                 at.x -= this.pixel_width/2;
@@ -146,10 +157,12 @@ var orthografic_camera = enviroment.Component.extend({
             case "isometric":
                 at.x -= pw/2;
                 at.y -= ph/2;
-                var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
-                    rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
-                at.x = rot_x;
-                at.y = rot_y;
+                if(this.rotation) {
+                    var rot_x = at.x*Math.cos(camera.rotation) + at.y*Math.sin(camera.rotation),
+                        rot_y = -at.x*Math.sin(camera.rotation) + at.y*Math.cos(camera.rotation);
+                    at.x = rot_x;
+                    at.y = rot_y;
+                }
                 at.x /= camera.scale_x;
                 at.y /= camera.scale_y;
                 var ix = at.x/2 + at.y,
@@ -161,10 +174,9 @@ var orthografic_camera = enviroment.Component.extend({
                 break;
         }
         
-        //console.log("Click at (" + at.x + "," + at.y + ")");
         enviroment.root.shot('click', at, true);
         return true;
     }
 });
 
-retrn(orthografic_camera);
+retrn(camera);

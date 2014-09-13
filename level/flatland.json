@@ -25,8 +25,9 @@
 			},
 			"components": [
 				{
-                    "type": "orthografic_camera",
+                    "type": "camera",
                     "args": {
+                        "mode": "orthographic",
                         "layer_mask": 65535,
                         "background": "CornflowerBlue",
                         "viewport": {

@@ -32,9 +32,6 @@ var Player = enviroment.Component.extend({
         var start = this.collider.fromWorldToMap(this.gameobject.transform.x, this.gameobject.transform.y),
             target = this.collider.fromWorldToMap(at.x, at.y);
         
-        console.log("Player at (" + this.gameobject.transform.x + "," + this.gameobject.transform.y + ")");
-        //console.log("Walking to (" + target.x + "," + target.y + ")");
-        
         var path = this.collider.pathOverMap(start.x, start.y, target.x, target.y);
         if(path && path.length > 0) {
             this.walking_initial_time = this.walking_time;
@@ -52,8 +49,6 @@ var Player = enviroment.Component.extend({
                         last_world_pos = this.collider.fromMapToWorld(last_token.x, last_token.y);
 
                     this.gameobject.moveTo(last_world_pos.x, last_world_pos.y);
-                    //console.log('Arriving at W(' + last_token.x + ',' + last_token.y + ')');
-                    //console.log('Arriving at (' + last_world_pos.x + ',' + last_world_pos.y + ')');
 
                     this.state = PlayerState.Idle;
                     break;
