@@ -4,4 +4,4 @@
 4. [X] Erase 'content' and 'abstractor' and load thing as done in level.js
 5. [X] Add a loading bar
 6. [X] Allow wrapping modules together
-7. [ ] Clean camera logic, add isometric camera and fix levels to use it
+7. [X] Clean camera logic, add isometric camera and fix levels to use it
