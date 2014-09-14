@@ -1,4 +1,5 @@
-//isometric_collider
+
+//map_collider
 var Path = {
     North: 1,
     NorthEast: 2,
@@ -43,18 +44,16 @@ var isometric_collider = enviroment.Component.extend({
         this.matrix = get('content/' + args.matrix);
         this.width = this.matrix.width;
         this.height = this.matrix.height;
-        
-        this.tile_width = args.tile_width || (args.tile_height * 2) || 64;
-        this.tile_height = args.tile_height || (args.tile_width / 2);
+        this.spacing = args.spacing || 32;
 
         this._super(args);
     },
     prepare: function (gameobject) {
-        gameobject.addService('isometric_collider', this);
+        gameobject.addService('map_collider', this);
         this._super(gameobject);
     },
     collisionAtMap: function (x, y) {
-        if(!(x >= 0 || x < this.matrix.width || y >= 0 || y < this.matrix.height)) {
+        if(!(x >= 0 && x < this.matrix.width && y >= 0 && y < this.matrix.height)) {
             return true;
         }
 
@@ -67,32 +66,35 @@ var isometric_collider = enviroment.Component.extend({
         }
     },
     collisionAtLocal: function (x, y) {
-        var mx, my;
-        mx = Math.floor((x/this.tile_width) + (y/this.tile_height));
-        my = Math.floor((y/this.tile_height) - (x/this.tile_width));
+        var mx = Math.floor(x/(this.gameobject.transform.scale_x*this.spacing)),
+            my = Math.floor(y/(this.gameobject.transform.scale_y*this.spacing));
         return this.collisionAtMap(mx, my);
     },
     collisionAtWorld: function (x, y) {
         return this.collisionAtLocal(x - this.gameobject.transform.x, y - this.gameobject.transform.y);
     },
-    transformToMap: function (x, y) {
-        var lx = (x - this.gameobject.transform.x)/this.gameobject.transform.scale_x,
-            ly = (y - this.gameobject.transform.y)/this.gameobject.transform.scale_y;
+    fromWorldToMap: function (wx, wy) {
+        var lx = (wx - this.gameobject.transform.x)/this.gameobject.transform.scale_x,
+            ly = (wy - this.gameobject.transform.y)/this.gameobject.transform.scale_y;
+        return this.fromLocalToMap(lx, ly);
+    },
+    fromLocalToMap: function (lx, ly) {
         return {
-            x: Math.floor((lx/this.tile_width) + (ly/this.tile_height)),
-            y: Math.floor((ly/this.tile_height) - (lx/this.tile_width))
+            x: Math.floor((lx/this.spacing)),
+            y: Math.floor((ly/this.spacing))
         };
     },
-    transformToLocal: function (mx, my) {
+    fromMapToLocal: function (mx, my) {
         return {
-            x: (mx - my)*this.tile_width/2,
-            y: (mx + my)*this.tile_height/2
+            x: mx*this.spacing,
+            y: my*this.spacing
         };
     },
-    transformToWorld: function (mx, my) {
+    fromMapToWorld: function (mx, my) {
+        var l = this.fromMapToLocal(mx, my);
         return {
-            x: ((mx - my)*this.tile_width/2)*this.gameobject.transform.scale_x + this.gameobject.transform.x,
-            y: ((mx + my)*this.tile_height/2)*this.gameobject.transform.scale_y + this.gameobject.transform.y
+            x: l.x + this.gameobject.transform.x,
+            y: l.y + this.gameobject.transform.y
         };
     },
     pathOverMap: function (sx, sy, tx, ty) {
@@ -214,15 +216,11 @@ var isometric_collider = enviroment.Component.extend({
             return ret;
         }
     },
-    getDirection: function (orientation) {
-        return Path.getDirection(orientation);
-    },
     getWorldDirection: function (orientation) {
-        var mapdir = Path.getDirection(orientation);
-        return {
-            x: (mapdir.x - mapdir.y)*this.tile_width/2*this.gameobject.transform.scale_x,
-            y: (mapdir.x + mapdir.y)*this.tile_height/2*this.gameobject.transform.scale_y
-        };
+        var dir = Path.getDirection(orientation);
+        dir.x *= this.spacing;
+        dir.y *= this.spacing;
+        return dir;
     }
 });
 

@@ -85,8 +85,10 @@
                             },
                             "components": [
                                 {
-                                    "type": "perspective_camera",
+                                    "type": "camera",
                                     "args": {
+                                        "mode": "perspective",
+                                        "rotation": false,
                                         "layer_mask": 65535,
                                         "background": "CornflowerBlue",
                                         "viewport": {

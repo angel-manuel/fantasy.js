@@ -1,10 +1,10 @@
-//isometric_player
+//player
 var PlayerState = {
     Idle: 1,
     Walking: 2
 };
 
-var isometric_player = enviroment.Component.extend({
+var Player = enviroment.Component.extend({
     init: function (args) {
         this.walking_speed = args.walking_speed || 1;
 
@@ -26,13 +26,11 @@ var isometric_player = enviroment.Component.extend({
         this._super(gameobject);
     },
     load: function () {
-        this.collider = this.gameobject.getService('isometric_collider');
+        this.collider = this.gameobject.getService('map_collider');
     },
     onclick: function (at) {
-        var start = this.collider.transformToMap(this.gameobject.transform.x, this.gameobject.transform.y);
-        var x = at.x;
-        var y = at.y;
-        var target = this.collider.transformToMap(x, y);
+        var start = this.collider.fromWorldToMap(this.gameobject.transform.x, this.gameobject.transform.y),
+            target = this.collider.fromWorldToMap(at.x, at.y);
         
         var path = this.collider.pathOverMap(start.x, start.y, target.x, target.y);
         if(path && path.length > 0) {
@@ -47,10 +45,10 @@ var isometric_player = enviroment.Component.extend({
             case PlayerState.Walking:
                 var step = Math.floor(this.walking_time * this.walking_speed) + 1;
                 if(step >= this.walking_path.length) {
-                    var last_token = this.walking_path.pop();
-                    var last_pos = this.collider.transformToWorld(last_token.x, last_token.y);
+                    var last_token = this.walking_path.pop(),
+                        last_world_pos = this.collider.fromMapToWorld(last_token.x, last_token.y);
 
-                    //this.gameobject.moveTo(last_pos.x, last_pos.y);
+                    this.gameobject.moveTo(last_world_pos.x, last_world_pos.y);
 
                     this.state = PlayerState.Idle;
                     break;
@@ -94,4 +92,4 @@ var isometric_player = enviroment.Component.extend({
     }
 });
 
-retrn(isometric_player);
+retrn(Player);

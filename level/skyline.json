@@ -26,8 +26,9 @@
 			},
 			"components": [
 				{
-					"type": "perspective_camera",
+					"type": "camera",
 					"args": {
+                        "mode": "perspective",
 						"layer_mask": 65535,
 						"background": "CornflowerBlue"
 					}

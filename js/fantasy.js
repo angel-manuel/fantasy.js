@@ -1,26 +1,24 @@
-(function (){
-    "use strict";
-
+(function () {
     function error(msg) {
-        console.error('ERROR:'+msg);
-        throw 'ERROR:'+msg;
+        console.error('ERROR:' + msg);
+        throw 'ERROR:' + msg;
     }
 
     function warning(msg) {
-        console.warn('WARNING:'+msg);
+        console.warn('WARNING:' + msg);
     }
     
-    var global_object = window || this;
-
-    var fantasy;
-    global_object.fantasy = fantasy = {};
-
-    var debug = true;
-
-    var enviroment;
-    var canvasname, canvas, context;
+    var global_object = window || this,
+        fantasy = {},
+        debug = true,
+        enviroment,
+        canvasname,
+        canvas,
+        context;
     //canvas - Canvas HTML5 element
     //context - canvas.getContext('2d')
+    
+    global_object.fantasy = fantasy = {};
 
     //getXMLHttpRequestObject()
     //Metodo multiplataforma para obtener un xhr
@@ -37,15 +35,15 @@
 
     function async_download(url, callback) {
         var xhr = getXMLHttpRequestObject();
-        xhr.addEventListener('readystatechange', function() {
-            switch(xhr.readyState) {
-                case 4:
-                    if(xhr.status == 200) {
-                        callback(null, xhr.responseText);
-                    } else {
-                        callback(xhr.status, xhr.responseText);
-                    }
-                    break;
+        xhr.addEventListener('readystatechange', function () {
+            switch (xhr.readyState) {
+            case 4:
+                if (xhr.status === 200) {
+                    callback(null, xhr.responseText);
+                } else {
+                    callback(xhr.status, xhr.responseText);
+                }
+                break;
             }
         });
         xhr.open('GET', url, true);
@@ -57,22 +55,22 @@
     //y sus dependencias. Automáticamente evalua ese código
 
     var moduleManager = (function moduleManager() {
-        var modules = {};
-        var subs = {};
-        var base_directory = 'code/';
+        var modules = {},
+            subs = {},
+            base_directory = 'code/';
 
         function get(modulename) {
             var module = modules[modulename];
-            if(module) {
+            if (module) {
                 return module;
             } else {
-                error('moduleManager:'+modulename+' not loaded');
+                error('moduleManager:' + modulename + ' not loaded');
             }
         }
 
         function set(modulename, module) {
-            if(modules[modulename]) {
-                warning('moduleManager:'+modulename+' being overwritten');
+            if (modules[modulename]) {
+                warning('moduleManager:' + modulename + ' being overwritten');
             }
             modules[modulename] = module;
         }
@@ -86,50 +84,49 @@
         }
 
         function use(args, callback) {
-            callback = callback || function(){};
+            callback = callback || function () {};
 
-            if(!args) {
-                warn('moduleManager:use:No args');
+            if (!args) {
+                warning('moduleManager:use:No args');
                 callback();
                 return;
             }
 
             //Array-case
-            if(typeof args === 'object' && Array.isArray(args)) {
-                if(args.length > 0) {
-                    var left = args.length;
-                    var rets = {};
+            if (typeof args === 'object' && Array.isArray(args)) {
+                if (args.length > 0) {
+                    var left = args.length, rets = {};
 
-                    _.each(args, function(arg) {
+                    _.each(args, function (arg) {
                         use(arg, function wrapper(ret) {
                             rets[arg] = ret;
-                            if(!--left) {
+                            if (!(--left)) {
                                 callback(rets);
                             }
                         });
                     });
                 } else {
-                    warn('moduleManager:use:No args');
+                    warning('moduleManager:use:No args');
                     callback();
                 }
                 return;
-            } else if(typeof args === 'string') {
+            } else if (typeof args === 'string') {
                 var modulename = args;
-                if(modules[modulename]) {
+                if (modules[modulename]) {
                     return modules[modulename];
                 }
 
-                if(subs[modulename]) {
+                if (subs[modulename]) {
                     subs[modulename].push(callback);
                 } else {
                     console.log('moduleManager:Loading ' + modulename);
                     subs[modulename] = [callback];
-                    var callback_wrapper_specific = _.bind(callback_wrapper, this, modulename);
+                    var callback_wrapper_specific = _.partial(callback_wrapper, modulename);
 
-                    var filename = base_directory+modulename+'.js';
-                    async_download(filename, function (err, code){
-                        if(err) {
-                            error('moduleManager:Couldn\'t download '+filename);
+                    var filename = base_directory + modulename + '.js';
+                    async_download(filename, function (err, code) {
+                        if (err) {
+                            error('moduleManager:Couldn\'t download ' + filename);
                             return;
                         }
 
@@ -153,7 +150,7 @@
             set: set,
             list: list
         };
-    })();
+    }());
     moduleManager.set('async_download', async_download);
 
     var Display = Class.extend({
@@ -167,17 +164,17 @@
             this.update_size();
         },
         update_size: function () {
-            if(typeof this.x === 'string') {
+            if (typeof this.x === 'string') {
                 this.pixel_x = this.x.substring(0, this.x.length - 1) * canvas.width / 100;
             } else {
                 this.pixel_x = this.x;
             }
-            if(typeof this.y === 'string') {
+            if (typeof this.y === 'string') {
                 this.pixel_y = this.y.substring(0, this.y.length - 1) * canvas.height / 100;
             } else {
                 this.pixel_y = this.y;
             }
-            if(typeof this.width === 'string') {
+            if (typeof this.width === 'string') {
                 this.pixel_width = this.width.substring(0, this.width.length - 1) * canvas.width / 100;
             } else {
                 this.pixel_width = this.width;
@@ -205,9 +202,9 @@
     Display.Add = function display_add(x, y, width, height, depth, handler) {
         var disp = Display.displays.push(new Display(x, y, width, height, depth, handler));
         Display.displays.sort(function depth_order(a, b) {
-            if(a.depth < b.depth) {
+            if (a.depth < b.depth) {
                 return 1;
-            } else if(a.depth > b.depth) {
+            } else if (a.depth > b.depth) {
                 return -1;
             } else {
                 return 0;
@@ -216,7 +213,7 @@
         return disp;
     };
     Display.DrawAll = function display_draw_all() {
-        _.each(Display.displays, function draw_display(d){
+        _.each(Display.displays, function draw_display(d) {
             d.draw();
         });
     };
@@ -230,7 +227,7 @@
         var x = event.clientX,
             y = event.clientY;
 
-        for(var i=Display.displays.length; i--;) {
+        for (var i=Display.displays.length; i--;) {
             var display = Display.displays[i];
             if(display.pixel_x < x && x < (display.pixel_x + display.pixel_width) && display.pixel_y < y && y < (display.pixel_y + display.pixel_height)) {
                 if(display.onclick(event))
@@ -307,19 +304,6 @@
             this.scale_x = args.scale_x || args.scale || 1;
             this.scale_y = args.scale_y || args.scale || 1;
             this.scale_z = args.scale_z || args.scale || 1;
-        },
-        apply: function () {
-            enviroment.context.translate(this.x, this.y);
-            enviroment.context.rotate(this.rotation);
-            enviroment.context.scale(this.scale_x, this.scale_y);
-        },
-        applyPerspective: function (camera) {
-            enviroment.context.translate(camera.x, camera.y);
-            var rel_depth = this.z - camera.z;
-
-            enviroment.context.translate((this.x - camera.x)/rel_depth, (this.y - camera.y)/rel_depth);
-            enviroment.context.rotate(this.rotation);
-            enviroment.context.scale(this.scale_x/rel_depth, this.scale_y/rel_depth);
         },
         combine: function (transform) {
             this.x += transform.x * this.scale_x;
@@ -584,11 +568,7 @@
         },
         setUpTransform: function(transform) {
             this.up_transform = transform;
-            this.transform = Transform.Combine(this.up_transform, this.local_transform);
-
-            _.each(this.subnodes, function (subnode) {
-                subnode.setUpTransform(this.transform);
-            }, this);
+            this.rebuildTransform();
         },
         rebuildTransform: function () {
             this.transform = Transform.Combine(this.up_transform, this.local_transform);
@@ -610,9 +590,9 @@
             this.rebuildTransform();
         },
         moveTo: function (x, y, z) {
-            var rx = x - this.transform.x || 0,
-                ry = y - this.transform.y || 0,
-                rz = z - this.transform.z || 0;
+            var rx = x - this.transform.x,
+                ry = y - this.transform.y,
+                rz = z - this.transform.z;
             
             this.translate(rx, ry, rz);
         },
