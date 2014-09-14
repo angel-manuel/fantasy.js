@@ -92,9 +92,9 @@ var camera = enviroment.Component.extend({
                     break;
                 case "isometric":
                     var icx = camera.x - camera.y,
-                        icy = (camera.x + camera.y)/2,
+                        icy = (camera.x + camera.y)/2 + camera.z,
                         ix = t.x - t.y,
-                        iy = (t.x + t.y)/2;
+                        iy = (t.x + t.y)/2 + t.z;
                     
                     tctx.translate(pw/2, ph/2);
                     if(this.rotation) {
@@ -102,7 +102,6 @@ var camera = enviroment.Component.extend({
                     }
                     tctx.scale(camera.scale_x, camera.scale_y);
                     
-                    //tctx.scale(1/rel_depth, 1/rel_depth);
                     tctx.translate(ix - icx, iy - icy);
                     
                     tctx.rotate(t.rotation);
@@ -165,8 +164,8 @@ var camera = enviroment.Component.extend({
                 }
                 at.x /= camera.scale_x;
                 at.y /= camera.scale_y;
-                var ix = at.x/2 + at.y,
-                    iy = -at.x/2 + at.y;
+                var ix = at.x/2 + at.y + camera.z,
+                    iy = -at.x/2 + at.y + camera.z;
                 at.x = ix;
                 at.y = iy;
                 at.x += camera.x;
