@@ -271,6 +271,9 @@
             if(enviroment.root === this.tree) {
                 enviroment.root = false;
             }
+        },
+        getRoot: function () {
+            return this.tree;
         }
     });
     Level.last_t = Date.now();
@@ -664,6 +667,31 @@
             });
             
             this.transform.fix();
+        },
+        listServices: function() {
+            return _.keys(this.services);
+        },
+        listListeners: function() {
+            return _.keys(this.listeners);
+        },
+        lookup: function(path) {
+            if(typeof path === "string") {
+                path = path.split("/");
+                path.reverse();
+            }
+
+            if(path.length == 0) {
+                return this;
+            }
+
+            var next = path.pop(),
+                next_sub = this.subnodes[next];
+
+            if(next_sub) {
+                return next_sub.lookup(path);
+            } else {
+                return next_sub;
+            }
         }
     });
 
@@ -774,4 +802,8 @@
             }
         });
     };
+
+    fantasy.getCurrentLevel = function () {
+        return Level.current;
+    }
 })();
