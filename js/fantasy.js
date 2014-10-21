@@ -113,7 +113,7 @@
             } else if (typeof args === 'string') {
                 var modulename = args;
                 if (modules[modulename]) {
-                    return modules[modulename];
+                    callback(modules[modulename]);
                 }
 
                 if (subs[modulename]) {
@@ -136,6 +136,7 @@
                 }
             } else {
                 error('moduleManager:args has unknown type');
+                callback(null);
                 return;
             }
         }
@@ -223,6 +224,7 @@
         });
     };
     window.addEventListener('resize', Display.UpdateSizeAll);
+    setInterval(Display.UpdateSizeAll, 5000);
     Display.OnClick = function display_onclick(event) {
         var x = event.clientX,
             y = event.clientY;
@@ -271,6 +273,9 @@
             if(enviroment.root === this.tree) {
                 enviroment.root = false;
             }
+        },
+        getRoot: function () {
+            return this.tree;
         }
     });
     Level.last_t = Date.now();
@@ -664,6 +669,31 @@
             });
             
             this.transform.fix();
+        },
+        listServices: function() {
+            return _.keys(this.services);
+        },
+        listListeners: function() {
+            return _.keys(this.listeners);
+        },
+        lookup: function(path) {
+            if(typeof path === "string") {
+                path = path.split("/");
+                path.reverse();
+            }
+
+            if(path.length == 0) {
+                return this;
+            }
+
+            var next = path.pop(),
+                next_sub = this.subnodes[next];
+
+            if(next_sub) {
+                return next_sub.lookup(path);
+            } else {
+                return next_sub;
+            }
         }
     });
 
@@ -706,6 +736,7 @@
             addDisplay: Display.Add
         };
     };
+
     fantasy.load = function (levelfile, callback) {
         console.log('Loading level from ' + levelfile);
         async_download(levelfile, function (err,res) {
@@ -774,4 +805,21 @@
             }
         });
     };
+
+    fantasy.loadAndStart = function(levelfile, callback) {
+        callback = callback || function(l) {};
+
+        fantasy.load(levelfile, function(lvl) {
+            lvl.start();
+            callback(lvl);
+        });
+    }
+
+    fantasy.getCurrentLevel = function () {
+        return Level.current;
+    }
+
+    fantasy.getModuleManager = function () {
+        return moduleManager;
+    }
 })();

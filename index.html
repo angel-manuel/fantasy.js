@@ -15,7 +15,10 @@
 	<script>
 		window.addEventListener('load', function(){
 			fantasy.init('canvas');
-			fantasy.load('level/isolevel.json', function(level) {
+
+            var levelname = prompt('Level', 'level/isolevel.json');
+
+			fantasy.load(levelname, function(level) {
 				level.start();
 			});
 		});
