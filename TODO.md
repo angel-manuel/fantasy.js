@@ -6,4 +6,4 @@
 6. [X] Allow wrapping modules together
 7. [X] Clean camera logic, add isometric camera and fix levels to use it
 8. [ ] Multi-altitude, multi-level and multi-file maps colliders and coordination with map images.
-9. [ ] Add gametree, gameobject and gamecomponent inspection functions
+9. [X] Add gametree, gameobject and gamecomponent inspection functions
