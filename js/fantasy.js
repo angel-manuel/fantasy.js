@@ -189,7 +189,9 @@
         },
         draw: function () {
             var frame_buffer = this.handler.getFrameBuffer();
-            context.drawImage(frame_buffer, this.pixel_x, this.pixel_y, this.pixel_width, this.pixel_height);
+            if(frame_buffer) {
+                context.drawImage(frame_buffer, this.pixel_x, this.pixel_y, this.pixel_width, this.pixel_height);
+            }
         },
         onclick: function (event) {
             var at = {
@@ -288,8 +290,8 @@
             Level.current.update(dt);
             context.save();
 
-            context.fillStyle = "#000000";
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            /*context.fillStyle = "#000000";
+            context.fillRect(0, 0, canvas.width, canvas.height);*/
 
             Display.DrawAll();
 
@@ -395,6 +397,7 @@
         init: function (args) {
             this.loaded = false;
             this.args = args;
+            this.redraw = true;
         },
         load: function () {
             this.loaded = true;
@@ -402,12 +405,18 @@
         unload: function () {
             this.loaded = false;
         },
-        draw: function () {},
+        needsDrawing: function () {
+            return this.redraw;
+        },
+        draw: function () {
+            this.redraw = false;
+        },
         update: function (dt) {},
         //prepare()
         //Anuncia los servicios que el objeto ofrece
         prepare: function (gameobject) {
             this.gameobject = gameobject;
+            gameobject.attach('move', _.bind(function() { this.redraw = true; }, this));
         },
         //destroy()
         //Libera los recursos
@@ -436,7 +445,7 @@
         //Cuando el evento eventname, callback sera llamado
         attach: function (eventname, callback) {
             if(this.listeners.hasOwnProperty(eventname)) {
-                this.listeners.push(callback);
+                this.listeners[eventname].push(callback);
             } else {
                 this.listeners[eventname] = [callback];
             }
@@ -581,6 +590,8 @@
             _.each(this.subnodes, function (subnode) {
                 subnode.setUpTransform(this.transform);
             }, this);
+
+            this.shot('move', {}, false);
         },
         translate: function (x, y, z) {
             this.local_transform.x += x || 0;
@@ -635,12 +646,13 @@
             if((layer_mask>>this.layer) % 2) {
                 _.each(this.components, function (component) {
                     if (component.draw) {
+                        var nd = component.needsDrawing || function () { return true; }
                         draw_list.push({
                             gameobject: this.node_name,
                             transform: this.transform,
-                            draw: component.draw.bind(component)
+                            draw: component.draw.bind(component),
+                            needsDrawing: nd.bind(component)
                         });
-                        //component.draw();
                     }
                 }, this);
             }
