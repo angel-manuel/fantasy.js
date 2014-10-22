@@ -7,4 +7,4 @@
 7. [X] Clean camera logic, add isometric camera and fix levels to use it
 8. [ ] Multi-altitude, multi-level and multi-file maps colliders and coordination with map images.
 9. [X] Add gametree, gameobject and gamecomponent inspection functions
-10. [ ] Adding draw-on-demand
+10. [X] Adding draw-on-demand
