@@ -20,6 +20,8 @@ var camera = enviroment.Component.extend({
         
         this.mode = args.mode || "orthographic";
 
+        this.redraw = true;
+
         this._super(args);
     },
     resize: function (width, height) {
@@ -28,9 +30,17 @@ var camera = enviroment.Component.extend({
         
         this.pixel_width = width;
         this.pixel_height = height;
+
+        this.redraw = true;
     },
     prepare: function (gameobject) {
         this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
+        this.redraw = true;
+
+        gameobject.attach('move', function(){
+            this.redraw = true;
+        });
+
         this._super(gameobject);
     },
     getFrameBuffer: function () {
@@ -40,84 +50,93 @@ var camera = enviroment.Component.extend({
             mode = this.mode,
             ph = this.pixel_height,
             pw = this.pixel_width;
-
-        tctx.save();
-        tctx.fillStyle = this.background;
-        tctx.fillRect(0, 0, this.pixel_width, this.pixel_height);
-
-        enviroment.context = tctx;
         
         var draw_list = enviroment.root.draw(this.layer_mask);
-        draw_list.sort(function z_order(a, b) {
-            if(a.transform.z < b.transform.z) {
-                return 1;
-            } else if(a.transform.z > b.transform.z) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
 
-        _.each(draw_list, function (draw_order) {
+        var redraw = this.redraw || _.some(_.map(draw_list, function(draw_order) {return draw_order.needsDrawing(); }));
+
+        if(redraw) {
             tctx.save();
-            
-            var t = draw_order.transform;
-            switch(mode) {
-                case "orthographic":
-                    tctx.translate(pw/2, ph/2);
-                    if(this.rotation) {
-                        tctx.rotate(-camera.rotation);
-                    }
-                    tctx.scale(camera.scale_x, camera.scale_y);
-                    
-                    tctx.translate(t.x - camera.x, t.y - camera.y);
-                    
-                    tctx.rotate(t.rotation);
-                    tctx.scale(t.scale_x, t.scale_y);
-                    break;
-                case "perspective":
-                    var rel_depth = t.z - camera.z;
-                    
-                    tctx.translate(pw/2, ph/2);
-                    if(this.rotation) {
-                        tctx.rotate(-camera.rotation);
-                    }
-                    tctx.scale(camera.scale_x, camera.scale_y);
-                    
-                    tctx.scale(1/rel_depth, 1/rel_depth);
-                    tctx.translate(t.x - camera.x, t.y - camera.y);
-                    
-                    tctx.rotate(t.rotation);
-                    tctx.scale(t.scale_x, t.scale_y);
-                    break;
-                case "isometric":
-                    var icx = camera.x - camera.y,
-                        icy = (camera.x + camera.y)/2 + camera.z,
-                        ix = t.x - t.y,
-                        iy = (t.x + t.y)/2 + t.z;
-                    
-                    tctx.translate(pw/2, ph/2);
-                    if(this.rotation) {
-                        tctx.rotate(-camera.rotation);
-                    }
-                    tctx.scale(camera.scale_x, camera.scale_y);
-                    
-                    tctx.translate(ix - icx, iy - icy);
-                    
-                    tctx.rotate(t.rotation);
-                    tctx.scale(t.scale_x, t.scale_y);
-                    break;
-            }
-            
-            draw_order.draw();
-            tctx.restore();
-        });
-        
-        enviroment.context = old_ctx;
-        
-        tctx.restore();
+            tctx.fillStyle = this.background;
+            tctx.fillRect(0, 0, this.pixel_width, this.pixel_height);
 
-        return this.target_canvas;
+            enviroment.context = tctx;
+
+            draw_list.sort(function z_order(a, b) {
+                if(a.transform.z < b.transform.z) {
+                    return 1;
+                } else if(a.transform.z > b.transform.z) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+
+            _.each(draw_list, function (draw_order) {
+                tctx.save();
+
+                var t = draw_order.transform;
+                switch(mode) {
+                    case "orthographic":
+                        tctx.translate(pw/2, ph/2);
+                        if(this.rotation) {
+                            tctx.rotate(-camera.rotation);
+                        }
+                        tctx.scale(camera.scale_x, camera.scale_y);
+
+                        tctx.translate(t.x - camera.x, t.y - camera.y);
+
+                        tctx.rotate(t.rotation);
+                        tctx.scale(t.scale_x, t.scale_y);
+                        break;
+                    case "perspective":
+                        var rel_depth = t.z - camera.z;
+
+                        tctx.translate(pw/2, ph/2);
+                        if(this.rotation) {
+                            tctx.rotate(-camera.rotation);
+                        }
+                        tctx.scale(camera.scale_x, camera.scale_y);
+
+                        tctx.scale(1/rel_depth, 1/rel_depth);
+                        tctx.translate(t.x - camera.x, t.y - camera.y);
+
+                        tctx.rotate(t.rotation);
+                        tctx.scale(t.scale_x, t.scale_y);
+                        break;
+                    case "isometric":
+                        var icx = camera.x - camera.y,
+                            icy = (camera.x + camera.y)/2 + camera.z,
+                            ix = t.x - t.y,
+                            iy = (t.x + t.y)/2 + t.z;
+
+                        tctx.translate(pw/2, ph/2);
+                        if(this.rotation) {
+                            tctx.rotate(-camera.rotation);
+                        }
+                        tctx.scale(camera.scale_x, camera.scale_y);
+
+                        tctx.translate(ix - icx, iy - icy);
+
+                        tctx.rotate(t.rotation);
+                        tctx.scale(t.scale_x, t.scale_y);
+                        break;
+                }
+
+                draw_order.draw();
+                tctx.restore();
+            });
+
+            enviroment.context = old_ctx;
+
+            tctx.restore();
+
+            this.redraw = false;
+
+            return this.target_canvas;
+        }
+
+        return null;
     },
     onclick: function (pos) {
         var camera = this.gameobject.transform,
