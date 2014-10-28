@@ -8,3 +8,4 @@
 8. [ ] Multi-altitude, multi-level and multi-file maps colliders and coordination with map images.
 9. [X] Add gametree, gameobject and gamecomponent inspection functions
 10. [X] Adding draw-on-demand
+11. [ ] Decoupling collision detection from collision response.
