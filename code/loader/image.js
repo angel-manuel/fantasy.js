@@ -36,7 +36,7 @@ retrn(function image_loader(args, onload) {
         img.addEventListener('load', function (){
             args.image = img;
             var ret = new image(args);
-            set('content/' + args.name, ret);
+            //set('content/' + args.name, ret);
             onload(ret);
         });
         img.src = args.src;

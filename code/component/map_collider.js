@@ -41,7 +41,7 @@ var Path = {
 
 var isometric_collider = enviroment.Component.extend({
     init: function (args) {
-        this.matrix = get('content/' + args.matrix);
+        this.matrix = enviroment.content[args.matrix];
         this.width = this.matrix.width;
         this.height = this.matrix.height;
         this.spacing = args.spacing || 32;

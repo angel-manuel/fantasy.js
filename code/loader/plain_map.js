@@ -83,7 +83,7 @@ retrn(function plain_map_loader(args, onload) {
 
         var on_tilemap_load = _.after(_.keys(map.tilemaps).length, function () {
             var m = new PlainMap(args);
-            set('content/' + args.name, m);
+            //set('content/' + args.name, m);
             onload(m);
         });
 

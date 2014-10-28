@@ -26,7 +26,7 @@ retrn(function animation_collection_loader(args, onload) {
         tilemap_loader(args.tilemap, function (tilemap) {
             args.tilemap = tilemap;
             var a = new AnimationCollection(args);
-            set('content/' + args.name, a);
+            //set('content/' + args.name, a);
             onload(a);
         });
     } else {

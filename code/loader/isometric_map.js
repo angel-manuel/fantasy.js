@@ -23,7 +23,7 @@ var IsometricMap = Class.extend({
             var w = layer.width;
             var h = layer.height;
             var data = layer.data;
-            var tilemap = get('content/' + layer.tilemap);
+            var tilemap = enviroment.content[layer.tilemap];
 
             var pw = (w+h)*dx;
             var ph = (w+h+1)*dy;
@@ -97,13 +97,15 @@ retrn(function isometric_map_loader(args, onload) {
 
         var on_tilemap_load = _.after(_.keys(map.tilemaps).length, function () {
             var m = new IsometricMap(args);
-            set('content/' + args.name, m);
+            //set('content/' + args.name, m);
             onload(m);
         });
 
         _.each(map.tilemaps, function (tilemap_args, tilemap_name) {
-            tilemap_args.name = tilemap_name;
-            tilemap_loader(tilemap_args, on_tilemap_load);
+            tilemap_loader(tilemap_args, function save_and_trigger(tilemap) {
+                enviroment.content[tilemap_name] = tilemap;
+                on_tilemap_load();
+            });
         });
     });
 });

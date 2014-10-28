@@ -145,6 +145,8 @@
             return _.keys(modules);
         }
 
+        set('async_download', async_download);
+
         return {
             use: use,
             get: get,
@@ -152,7 +154,6 @@
             list: list
         };
     }());
-    moduleManager.set('async_download', async_download);
 
     var Display = Class.extend({
         init: function (x, y, width, height, depth, handler) {
@@ -201,7 +202,7 @@
             return this.handler.onclick(at);
         }
     });
-    Display.displays = [];
+
     Display.Add = function display_add(x, y, width, height, depth, handler) {
         var disp = Display.displays.push(new Display(x, y, width, height, depth, handler));
         Display.displays.sort(function depth_order(a, b) {
@@ -215,18 +216,28 @@
         });
         return disp;
     };
+
     Display.DrawAll = function display_draw_all() {
         _.each(Display.displays, function draw_display(d) {
             d.draw();
         });
     };
+
     Display.UpdateSizeAll = function display_update_size_all() {
         _.each(Display.displays, function update_display_size(d) {
             d.update_size();
         });
     };
-    window.addEventListener('resize', Display.UpdateSizeAll);
-    setInterval(Display.UpdateSizeAll, 5000);
+
+    Display.QuitAll = function display_quit_all() {
+        context.save();
+        context.fillStyle = "#000000";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.restore();
+
+        Display.displays = [];
+    };
+
     Display.OnClick = function display_onclick(event) {
         var x = event.clientX,
             y = event.clientY;
@@ -239,10 +250,15 @@
             }
         }
     };
+
+    Display.displays = [];
+    window.addEventListener('resize', Display.UpdateSizeAll);
+    setInterval(Display.UpdateSizeAll, 5000);
     window.addEventListener('click', Display.OnClick);
 
     var Level = Class.extend({
-        init: function(tree) {
+        init: function(tree, content) {
+            this.content = content;
             this.tree = tree;
             this.loaded = false;
         },
@@ -256,7 +272,9 @@
             this.tree.update(dt);
         },
         start: function() {
+            Display.QuitAll();
             this.stop();
+            enviroment.content = this.content;
             enviroment.root = this.tree;
 
             this.tree.load();
@@ -269,6 +287,7 @@
         stop: function() {
             this.loaded = false;
             if(Level.current === this) {
+                Display.QuitAll();
                 Level.current = false;
                 Level.current.unload();
             }
@@ -278,6 +297,9 @@
         },
         getRoot: function () {
             return this.tree;
+        },
+        getContent: function () {
+            return this.content;
         }
     });
     Level.last_t = Date.now();
@@ -759,14 +781,21 @@
             var level = JSON.parse(res);
             var root;
 
+            var content = {};
+            var oldcnt = enviroment.content;
+            enviroment.content = content;
+
             enviroment.level = level;
 
             if(level.content) {
-                var content_trigger = _.after(_.keys(level.content).length, load_tree);
+                var content_trigger = _.after(_.keys(level.content).length,  load_tree);
                 _.each(level.content, function load_asset(cnt, cntname) {
                     moduleManager.use('loader/'+cnt.type, function load_asset_2(loader) {
                         cnt.args.name = cntname;
-                        loader(cnt.args, content_trigger);
+                        loader(cnt.args, function save_and_trigger(c) {
+                            content[cntname] = c;
+                            content_trigger(c);
+                        });
                     });
                 });
             } else {
@@ -808,9 +837,11 @@
             function load_tree() {
                 if(level.tree) {
                     load_node('root', {subnodes:level.tree}, function lvl_save(R) {
-                        callback(new Level(R));
+                        enviroment.content = oldcnt;
+                        callback(new Level(R, content));
                     });
                 } else {
+                    enviroment.content = oldcnt;
                     error('load:level has no tree info');
                     return;
                 }

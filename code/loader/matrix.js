@@ -26,12 +26,12 @@ retrn(function matrix_loader(args, onload) {
             var obj = JSON.parse(res);
 
             var m = new Matrix(obj);
-            set('content/' + args.name, m);
+            //set('content/' + args.name, m);
             onload(m);
         });
     } else if (args && args.data) {
         var m = new Matrix(args);
-        set('content/' + args.name, m);
+        //set('content/' + args.name, m);
         onload(m);
     } else {
         throw 'matrix_loader: Not enough args';

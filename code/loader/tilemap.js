@@ -52,7 +52,7 @@ retrn(function tilemap_loader(args, onload) {
         image_loader(args, function (img) {
             args.image = img;
             var t = new tilemap(args);
-            set('content/' + name, t);
+            //set('content/' + name, t);
             onload(t);
         });
     } else {

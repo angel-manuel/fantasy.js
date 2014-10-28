@@ -1,7 +1,7 @@
 //drawer
 var Drawer = enviroment.Component.extend({
     init: function (args) {
-        this.target = get('content/'+args.target);
+        this.target = enviroment.content[args.target];
 
         this.align = args.align || 'none';
         this.fillStyle = args.fillStyle;

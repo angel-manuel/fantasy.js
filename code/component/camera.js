@@ -34,7 +34,6 @@ var camera = enviroment.Component.extend({
         this.redraw = true;
     },
     prepare: function (gameobject) {
-        this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
         this.redraw = true;
 
         gameobject.attach('move', function(){
@@ -42,6 +41,9 @@ var camera = enviroment.Component.extend({
         });
 
         this._super(gameobject);
+    },
+    load: function () {
+        this.display = enviroment.addDisplay(this.viewport.x, this.viewport.y, this.viewport.width, this.viewport.height, this.viewport.depth, this);
     },
     getFrameBuffer: function () {
         var camera = this.gameobject.transform,
