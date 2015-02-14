@@ -9,4 +9,4 @@
 9. [X] Add gametree, gameobject and gamecomponent inspection functions
 10. [X] Adding draw-on-demand
 11. [ ] Decoupling collision detection from collision response.
-12. [ ] Managing content on a level basis and not from shared ModuleManager
+12. [X] Managing content on a level basis and not from shared ModuleManager
